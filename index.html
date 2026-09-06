@@ -1,0 +1,3434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Promotion Predictor v17 —Developed By TouqeerAhmed | Sindh College Education</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink:        #0d1f17;
+  --ink-2:      #2a3d33;
+  --ink-3:      #4e6659;
+  --ink-4:      #8aa898;
+  --surface:    #f3f7f5;
+  --surface-2:  #e8f0ec;
+  --surface-3:  #d6e5dc;
+  --white:      #ffffff;
+  --accent:     #1a6640;
+  --accent-2:   #22884f;
+  --accent-pale:#e4f2ea;
+  --gold:       #b5751a;
+  --gold-pale:  #fdf0dc;
+  --red:        #b53a2f;
+  --red-pale:   #fdecea;
+  --border:     #cdddd5;
+  --mono:       'IBM Plex Mono', monospace;
+  --sans:       'Inter', system-ui, sans-serif;
+  --radius:     10px;
+  --shadow:     0 1px 3px rgba(13,31,23,0.08), 0 4px 16px rgba(13,31,23,0.04);
+}
+
+body {
+  font-family: var(--sans);
+  background: var(--surface);
+  color: var(--ink);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ─── TOPBAR ─────────────────────────────────────── */
+.topbar {
+  background: var(--ink);
+  height: 56px;
+  display: flex;
+  align-items: center;
+  padding: 0 2rem;
+  gap: 1rem;
+  border-bottom: 2px solid var(--accent);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.topbar-logo {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent-pale);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.topbar-sep { width: 1px; height: 20px; background: rgba(255,255,255,0.12); }
+.topbar-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.65);
+}
+.topbar-right { margin-left: auto; }
+/* ─── ACTIVE LIST STATUS BAR ─────────────────────── */
+.active-list-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 0.75rem 1.1rem;
+  margin-bottom: 1.25rem;
+}
+.active-list-bar.female { border-left-color: var(--gold); }
+.active-list-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+.active-list-bar.female .active-list-dot { background: var(--gold); }
+.active-list-text {
+  flex: 1;
+  font-size: 13px;
+  color: var(--ink);
+}
+.active-list-text strong { font-weight: 600; }
+.active-list-switch-btn {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-pale);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.12s, border-color 0.12s;
+}
+.active-list-switch-btn:hover { background: var(--surface-3); border-color: var(--accent); }
+.active-list-bar.female .active-list-switch-btn { color: var(--gold); background: var(--gold-pale); }
+.active-list-bar.female .active-list-switch-btn:hover { border-color: var(--gold); }
+@media (max-width: 680px) {
+  .active-list-bar { flex-wrap: wrap; }
+  .active-list-switch-btn { width: 100%; text-align: center; }
+}
+/* Ensure topbar logo/title take remaining space, not menu-wrap */
+.topbar { position: relative; }
+.topbar-load-btn {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent-pale);
+  background: rgba(34,136,79,0.18);
+  border: 1px solid rgba(34,136,79,0.5);
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.topbar-load-btn:hover {
+  background: rgba(34,136,79,0.32);
+  border-color: var(--accent-2);
+}
+/* ─── LEFT SIDEBAR MENU ──────────────────────────── */
+
+/* Hamburger button in topbar (left side) */
+.menu-wrap { position: relative; order: 0; }
+.menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: rgba(34,136,79,0.18);
+  border: 1px solid rgba(34,136,79,0.5);
+  border-radius: 6px;
+  cursor: pointer;
+  gap: 4px;
+  flex-direction: column;
+  padding: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+.menu-btn:hover { background: rgba(34,136,79,0.32); border-color: var(--accent-2); }
+.menu-btn span {
+  display: block;
+  width: 16px;
+  height: 2px;
+  background: var(--accent-pale);
+  border-radius: 1px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.menu-btn.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.menu-btn.open span:nth-child(2) { opacity: 0; }
+.menu-btn.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+/* Overlay backdrop */
+.menu-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(13,31,23,0.35);
+  z-index: 150;
+  backdrop-filter: blur(2px);
+}
+.menu-overlay.open { display: block; }
+
+/* Left sidebar drawer */
+.menu-dropdown {
+  position: fixed;
+  top: 0;
+  left: -280px;
+  width: 260px;
+  height: 100vh;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  box-shadow: 4px 0 24px rgba(13,31,23,0.18);
+  z-index: 200;
+  overflow-y: auto;
+  transition: left 0.25s cubic-bezier(0.4,0,0.2,1);
+  display: flex;
+  flex-direction: column;
+}
+.menu-dropdown.open { left: 0; }
+
+/* Sidebar header */
+.menu-sidebar-header {
+  background: var(--ink);
+  padding: 0 1rem;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 2px solid var(--accent);
+  flex-shrink: 0;
+}
+.menu-sidebar-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent-pale);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.menu-sidebar-close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--ink-4);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 4px;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+.menu-sidebar-close:hover { color: var(--white); background: rgba(255,255,255,0.1); }
+
+/* Section label inside sidebar */
+.menu-section-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  padding: 1rem 1rem 0.4rem;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--surface-2);
+  padding: 13px 1rem;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  gap: 10px;
+}
+.menu-item:last-child { border-bottom: none; }
+.menu-item:hover { background: var(--accent-pale); color: var(--accent); }
+.menu-item-icon {
+  font-size: 15px;
+  width: 20px;
+  flex-shrink: 0;
+  text-align: center;
+  opacity: 0.7;
+}
+.menu-item-text { flex: 1; }
+.menu-item .menu-item-check {
+  font-size: 11px;
+  color: var(--accent);
+  opacity: 0;
+  transition: opacity 0.12s;
+  margin-left: auto;
+}
+.menu-item.active .menu-item-check { opacity: 1; }
+
+.upload-panel {
+  max-height: 0;
+  overflow: hidden;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  transition: max-height 0.25s ease;
+}
+.upload-panel.open {
+  max-height: 220px;
+}
+.upload-panel-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1rem 2rem 0.5rem;
+  flex-wrap: wrap;
+}
+.upload-panel-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 640px;
+}
+.upload-panel-text strong {
+  font-size: 13px;
+  color: var(--ink);
+}
+.upload-panel-text span {
+  font-size: 12px;
+  color: var(--ink-3);
+  line-height: 1.4;
+}
+.upload-choose-btn {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--white);
+  background: var(--accent);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.upload-choose-btn:hover {
+  background: var(--accent-2);
+}
+.upload-status {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  padding: 0 2rem 0.85rem;
+  min-height: 14px;
+  color: var(--ink-3);
+}
+.upload-status.loading { color: var(--gold); }
+.upload-status.success { color: var(--accent); font-weight: 600; }
+.upload-status.error { color: var(--red); font-weight: 600; }
+
+.seats-edit-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+.seats-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.seats-field span {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.seats-field input {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  width: 90px;
+}
+.seats-field input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.topbar-date {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-4);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+/* ─── LAYOUT ─────────────────────────────────────── */
+.page { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
+
+/* ─── SECTION HEADER ─────────────────────────────── */
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.section-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-pale);
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* ─── METHOD EXPLAINER ───────────────────────────── */
+.method-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-pale);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  margin-bottom: 1.25rem;
+  transition: background 0.12s, border-color 0.12s;
+}
+.method-toggle-btn:hover { background: var(--surface-3); border-color: var(--accent); }
+.method-chevron { transition: transform 0.2s; font-size: 10px; }
+.method-chevron.open { transform: rotate(90deg); }
+
+.method-info-box {
+  display: none;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem 1.75rem;
+  margin: -0.5rem 0 1.5rem;
+}
+.method-info-box.open { display: block; }
+.method-intro {
+  font-size: 12.5px;
+  color: var(--ink-2);
+  line-height: 1.6;
+  padding-bottom: 1rem;
+  margin-bottom: 0.25rem;
+  border-bottom: 1px solid var(--surface-2);
+}
+.method-step {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--surface-2);
+}
+.method-step:last-of-type { border-bottom: none; }
+.method-step-num {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent-pale);
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.method-step-body h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 3px;
+}
+.method-step-body p {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  line-height: 1.6;
+}
+.method-preview-row .log-promo-row {
+  display: inline-block;
+  margin: 8px 0 0;
+}
+.method-footnote {
+  font-size: 12px;
+  color: var(--ink-3);
+  font-style: italic;
+  padding-top: 1rem;
+  line-height: 1.55;
+}
+
+/* ─── GRADE STATS GRID ───────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+.grade-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.grade-card-header {
+  background: var(--ink);
+  padding: 0.875rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.grade-label {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--white);
+  letter-spacing: 0.06em;
+}
+.grade-fill-bar-wrap {
+  height: 3px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  flex: 1;
+  max-width: 80px;
+  margin-left: 1rem;
+  overflow: hidden;
+}
+.grade-fill-bar {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.6s ease;
+}
+.grade-card-body { padding: 1.25rem; }
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--surface-2);
+}
+.stat-row:last-child { border-bottom: none; padding-bottom: 0; }
+.stat-row:first-child { padding-top: 0; }
+.stat-label {
+  font-size: 12px;
+  color: var(--ink-3);
+  font-weight: 500;
+}
+.stat-value {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.stat-value.vacant { color: var(--gold); }
+.stat-value.full   { color: var(--accent-2); }
+.stat-pct {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-4);
+  margin-left: 4px;
+}
+
+/* ─── SEARCH PANEL ───────────────────────────────── */
+.search-panel {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 2.5rem;
+  overflow: hidden;
+}
+.search-panel-top {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--surface-2);
+}
+.search-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1rem;
+  align-items: end;
+  margin-top: 1rem;
+}
+.field-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-3);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.field-control {
+  width: 100%;
+  height: 42px;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--white);
+  padding: 0 12px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  appearance: none;
+}
+.field-control:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(26,102,64,0.1);
+}
+.field-control::placeholder { color: var(--ink-4); }
+select.field-control {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234e6659' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+.btn-predict {
+  height: 42px;
+  background: var(--accent);
+  color: var(--white);
+  border: none;
+  border-radius: 7px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 0 1.5rem;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.btn-predict:hover  { background: var(--ink); }
+.btn-predict:active { transform: scale(0.98); }
+.btn-predict:disabled { background: var(--surface-3); color: var(--ink-4); cursor: not-allowed; }
+
+/* ─── RESULT AREA ────────────────────────────────── */
+.result-area { padding: 1.5rem; display: none; }
+.result-area.visible { display: block; }
+
+/* ─── MODE TOGGLE ────────────────────────────────── */
+.mode-toggle {
+  display: flex;
+  gap: 0;
+  background: var(--surface-2);
+  border-radius: 8px;
+  padding: 3px;
+  width: fit-content;
+  margin-bottom: 1.25rem;
+}
+.mode-btn {
+  padding: 6px 18px;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: var(--ink-3);
+  letter-spacing: 0.03em;
+  transition: background 0.15s, color 0.15s;
+}
+.mode-btn.active {
+  background: var(--white);
+  color: var(--accent);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+}
+
+/* ─── COMPARE FIELDS ─────────────────────────────── */
+.compare-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.compare-person {
+  background: var(--surface-2);
+  border-radius: 10px;
+  padding: 1rem 1.1rem 1.1rem;
+  border: 1.5px solid var(--border);
+}
+.compare-person-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 0.75rem;
+}
+.compare-person.b .compare-person-label { color: var(--gold); }
+
+/* ─── COMPARE RESULT ─────────────────────────────── */
+.compare-result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+.compare-summary {
+  background: var(--accent-pale);
+  border: 1px solid #b2d9c3;
+  border-radius: 10px;
+  padding: 1.1rem 1.5rem;
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.7;
+}
+.compare-summary strong { color: var(--accent); }
+.compare-summary .gap-highlight {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+@media (max-width: 680px) {
+  .compare-fields { grid-template-columns: 1fr; }
+  .compare-result-grid { grid-template-columns: 1fr; }
+}
+
+.spinner-wrap { text-align: center; padding: 2rem; color: var(--ink-3); }
+.spinner {
+  width: 28px; height: 28px;
+  border: 2.5px solid var(--surface-3);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.65s linear infinite;
+  margin: 0 auto 0.75rem;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-msg {
+  background: var(--red-pale);
+  border: 1px solid #e8b4b0;
+  border-radius: 7px;
+  padding: 1rem 1.25rem;
+  color: var(--red);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ─── PERSON RESULT ──────────────────────────────── */
+.person-result {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  align-items: start;
+}
+.person-info { }
+.person-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.person-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chip {
+  font-family: var(--mono);
+  font-size: 11px;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  padding: 3px 9px;
+  border-radius: 4px;
+  border: 1px solid var(--surface-3);
+}
+.chip.grade { background: var(--accent-pale); color: var(--accent); border-color: #b2d9c3; }
+
+/* ─── TIMELINE ───────────────────────────────────── */
+.timeline-wrap { margin-top: 1.5rem; }
+.timeline-track { display: flex; flex-direction: column; gap: 0; }
+
+.tl-row {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 0 1rem;
+}
+.tl-spine {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.tl-node {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+.tl-node.origin { background: var(--surface-2); border: 2px solid var(--border); }
+.tl-node.promo  { background: var(--accent); border: 2px solid var(--accent); color: var(--white); }
+.tl-node.peak   { background: var(--gold); border: 2px solid var(--gold); color: var(--white); }
+.tl-node.miss   { background: var(--red-pale); border: 2px solid #e8b4b0; color: var(--red); }
+.tl-node.retire { background: var(--surface-2); border: 2px dashed var(--border); color: var(--ink-3); }
+.tl-wire {
+  width: 2px;
+  flex: 1;
+  min-height: 16px;
+  background: var(--border);
+}
+.tl-wire.hidden { display: none; }
+
+.tl-content { padding: 4px 0 20px; }
+.tl-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  margin-bottom: 3px;
+}
+.tl-main-date {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.15;
+}
+.tl-main-date.gold { color: var(--gold); }
+.tl-main-date.green { color: var(--accent); }
+.tl-sub {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-top: 3px;
+}
+.tl-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 3px;
+  margin-top: 6px;
+}
+.tl-badge.promoted { background: var(--accent-pale); color: var(--accent); }
+.tl-badge.gold     { background: var(--gold-pale);   color: var(--gold); }
+.tl-badge.missed   { background: var(--red-pale);     color: var(--red); }
+.tl-badge.current  { background: var(--surface-2);    color: var(--ink-3); }
+
+/* ─── LOG ────────────────────────────────────────── */
+.log-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: background 0.12s, border-color 0.12s;
+}
+.log-toggle-btn:hover { background: var(--accent-pale); border-color: var(--accent); }
+.log-chevron { transition: transform 0.2s; font-size: 10px; }
+.log-chevron.open { transform: rotate(90deg); }
+.log-box {
+  display: none;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-top: 0.75rem;
+  max-height: 440px;
+  overflow-y: auto;
+  box-shadow: inset 0 1px 2px rgba(13,31,23,0.03);
+}
+.log-box.open { display: block; }
+.log-body {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: var(--ink-2);
+  padding: 0.35rem 0;
+}
+.log-day-row {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface-2);
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 8px 18px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.log-body > .log-day-row:first-child { border-top: none; }
+.log-line {
+  padding: 1.5px 18px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.log-line.indent-1 { padding-left: 30px; color: var(--ink-3); }
+.log-line.indent-2 { padding-left: 46px; color: var(--ink-4); font-size: 11px; }
+.log-gap { display: inline-block; width: 12px; }
+.log-spacer { height: 8px; }
+.log-promo-row {
+  margin: 5px 18px;
+  padding: 6px 12px;
+  background: var(--gold-pale);
+  border-left: 3px solid var(--gold);
+  border-radius: 4px;
+  color: var(--gold);
+  font-weight: 600;
+  font-size: 11.5px;
+}
+
+/* ─── RETIREMENT CALENDAR ────────────────────────── */
+.retirement-section { margin-top: 2.5rem; }
+.cal-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+.cal-filter-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-3);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.cal-filter-btns { display: flex; gap: 4px; }
+.filter-btn {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--white);
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+.filter-btn.active { background: var(--accent); color: var(--white); border-color: var(--accent); }
+
+.cal-table-wrap {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.cal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.cal-table thead th {
+  background: var(--ink);
+  color: rgba(255,255,255,0.7);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 10px 16px;
+  text-align: left;
+  font-family: var(--mono);
+  white-space: nowrap;
+}
+.cal-table tbody tr { border-bottom: 1px solid var(--surface-2); transition: background 0.1s; }
+.cal-table tbody tr:last-child { border-bottom: none; }
+.cal-table tbody tr:hover { background: var(--surface); }
+.cal-table td { padding: 10px 16px; vertical-align: top; }
+.cal-month-cell {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.cal-month-cell .yr { color: var(--ink-4); }
+.cal-count {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
+.cal-count.zero { color: var(--ink-4); }
+.cal-count.low  { color: var(--ink-2); }
+.cal-count.mid  { color: var(--gold); }
+.cal-count.high { color: var(--red); }
+.cal-names { font-size: 11.5px; color: var(--ink-3); line-height: 1.8; }
+.cal-grade-group { display: flex; align-items: flex-start; margin-bottom: 2px; }
+.cal-grade-label { font-size: 10px; font-weight: 700; letter-spacing: 0.04em; color: var(--white); border-radius: 4px; padding: 1px 5px; white-space: nowrap; margin-right: 6px; margin-top: 3px; flex-shrink: 0; }
+.cal-grade-label.g20 { background: var(--gold); }
+.cal-grade-label.g19 { background: var(--accent); }
+.cal-grade-label.g18 { background: var(--ink-3); }
+.cal-grade-label.g17 { background: #5a3d8a; }
+.cal-grade-names { flex: 1; word-break: break-word; white-space: normal; }
+.cal-names .name-entry { display: inline; margin-right: 2px; white-space: normal; }
+.cal-names .sno-tag { font-family: var(--mono); font-size: 10px; color: var(--ink-4); }
+.cal-empty-msg {
+  padding: 2rem 1.5rem;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--ink-3);
+  line-height: 1.6;
+}
+.cal-total-cell {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-2);
+  text-align: center;
+}
+.total-row { background: var(--surface) !important; }
+.total-row td { font-weight: 600; }
+
+/* ─── FOOTER ─────────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 1.25rem 1rem 1.5rem;
+  font-size: 12px;
+  color: var(--ink-3);
+  border-top: 1px solid var(--border);
+  margin-top: 1rem;
+}
+.site-footer a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+.site-footer a:hover { text-decoration: underline; }
+
+/* ─── RESPONSIVE ─────────────────────────────────── */
+@media (max-width: 680px) {
+  /* ── Topbar ── */
+  .topbar { flex-wrap: nowrap; padding: 0 0.75rem; gap: 8px; height: 52px; }
+  .topbar-sep { display: none; }
+  .topbar-title { font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
+  .topbar-title-sub { display: none; }
+  .topbar-logo { font-size: 11px; }
+  .topbar-right { gap: 6px; }
+  .topbar-load-btn { font-size: 11px; padding: 4px 10px; }
+  .topbar-date { font-size: 11px; }
+  /* Sidebar stays same width on mobile, full height */
+  .menu-dropdown { width: 80vw; max-width: 280px; }
+
+  /* ── Sanctioned seats panel ── */
+  .upload-panel.open { max-height: 480px; }
+  .upload-panel-inner { padding: 0.75rem 1rem 0.5rem; gap: 0.75rem; }
+  .upload-panel-text span { display: none; }
+  .upload-status { padding: 0 1rem 0.75rem; }
+
+  /* ── Sanctioned seats edit row ── */
+  .seats-edit-row { flex-direction: column; align-items: stretch; gap: 10px; width: 100%; }
+  .seats-field { width: 100%; flex-direction: row; align-items: center; justify-content: space-between; }
+  .seats-field span { font-size: 12px; }
+  .seats-field input { width: 140px; box-sizing: border-box; font-size: 14px; padding: 8px 12px; }
+  .upload-choose-btn { width: 100%; text-align: center; padding: 10px 16px; font-size: 14px; }
+
+  /* ── Main content ── */
+  .stats-grid { grid-template-columns: 1fr; }
+  .search-fields { grid-template-columns: 1fr 1fr; }
+  .btn-predict { grid-column: 1/-1; }
+  .person-result { grid-template-columns: 1fr; }
+  .tl-main-date { font-size: 17px; }
+  .page { padding: 1rem 0.75rem 4rem; }
+
+  /* ── Calendar table: horizontal scroll instead of crushed columns ── */
+  .cal-table td:last-child { display: none; }
+  .cal-section { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .cal-table { min-width: 420px; }
+
+  /* ── Log output: bigger font so it's readable without zooming ── */
+  #logOutput { font-size: 12px !important; }
+}
+
+/* ── SENIORITY LIST PANEL ── */
+.seniority-panel{display:none;margin-bottom:16px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.seniority-panel.open{display:block;}
+.seniority-tab-bar{display:flex;gap:0;border-bottom:1px solid var(--border);}
+.seniority-tab{flex:1;padding:10px 0;text-align:center;font-size:13px;font-weight:600;cursor:pointer;color:var(--ink-3);border:none;background:transparent;transition:color .15s,background .15s;}
+.seniority-tab.active{color:var(--accent);background:var(--accent-pale);border-bottom:2px solid var(--accent);}
+.seniority-search-row{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.seniority-search-row input{flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:13px;background:var(--surface);color:var(--ink);}
+.seniority-count{font-size:12px;color:var(--ink-3);white-space:nowrap;}
+.seniority-table-wrap{max-height:380px;overflow-y:auto;}
+.seniority-table{width:100%;border-collapse:collapse;font-size:13px;}
+.seniority-table thead th{position:sticky;top:0;background:var(--surface-3);padding:8px 12px;text-align:left;font-weight:600;color:var(--ink-2);font-size:12px;border-bottom:1px solid var(--border);}
+.seniority-table tbody tr{border-bottom:1px solid var(--border-light,#f0f0f0);}
+.seniority-table tbody tr:hover{background:var(--accent-pale);}
+.seniority-table tbody tr.highlight{background:#fff8e1;}
+.seniority-table tbody td{padding:7px 12px;color:var(--ink);}
+.seniority-table .td-sno{width:60px;font-weight:600;color:var(--ink-2);}
+.seniority-table .td-retire{width:110px;font-size:12px;color:var(--ink-3);}
+.seniority-table .td-status{width:80px;}
+.status-active{font-size:11px;color:#166534;background:#dcfce7;border-radius:4px;padding:2px 6px;font-weight:600;}
+.status-near{font-size:11px;color:#92400e;background:#fef3c7;border-radius:4px;padding:2px 6px;font-weight:600;}
+
+/* ── SUBJECT ANALYSIS TABLES ── */
+.subject-strength-note {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin: -0.5rem 0 0.85rem;
+  line-height: 1.5;
+}
+.subject-table-wrap {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  margin-bottom: 2.5rem;
+}
+.subject-table-scroll {
+  max-height: 460px;
+  overflow-y: auto;
+}
+.subject-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.subject-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--ink);
+  color: rgba(255,255,255,0.7);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 10px 16px;
+  text-align: left;
+  font-family: var(--mono);
+  white-space: nowrap;
+}
+.subject-table thead th.num { text-align: center; }
+.subject-table tbody tr { border-bottom: 1px solid var(--surface-2); transition: background 0.1s; }
+.subject-table tbody tr:hover { background: var(--surface); }
+.subject-table tbody tr:last-child { border-bottom: none; }
+.subject-table td { padding: 8px 16px; vertical-align: middle; }
+.subject-table td.num {
+  font-family: var(--mono);
+  font-weight: 600;
+  text-align: center;
+  color: var(--ink-2);
+}
+.subject-table td.subj-name { font-weight: 500; color: var(--ink); }
+.subject-table tr.subject-total-row {
+  background: var(--surface) !important;
+  position: sticky;
+  bottom: 0;
+}
+.subject-table tr.subject-total-row td { font-weight: 700; color: var(--ink); border-top: 2px solid var(--border); }
+.subject-table td.num.urgent-high { color: var(--red); }
+.subject-table td.num.urgent-mid  { color: var(--gold); }
+.subject-table td.num.urgent-zero { color: var(--ink-4); font-weight: 500; }
+
+/* ── ROSTER OUTCOME SUMMARY ── */
+.oc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+@media (max-width: 680px) { .oc-grid { grid-template-columns: 1fr; } }
+
+.oc-run-btn {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--white);
+  background: var(--accent);
+  border: none;
+  padding: 8px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-bottom: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.oc-run-btn:hover { background: var(--accent-2); }
+
+.oc-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.oc-card-header {
+  background: var(--ink);
+  padding: 0.875rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.oc-card-label {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--white);
+  letter-spacing: 0.06em;
+}
+.oc-card-sublabel {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-4);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.oc-card-body { padding: 1.25rem 1.25rem 0.5rem; }
+
+.oc-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--surface-2);
+}
+.oc-stat-row:last-child { border-bottom: none; }
+.oc-stat-label { font-size: 12px; color: var(--ink-3); font-weight: 500; }
+.oc-stat-value {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.oc-stat-value.green { color: var(--accent); }
+.oc-stat-value.gold  { color: var(--gold); }
+.oc-stat-value.red   { color: var(--red); }
+
+/* bucket toggles */
+.oc-buckets { padding: 0 1.25rem 1rem; }
+.oc-bucket-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 7px 0;
+  border-top: 1px solid var(--surface-2);
+  transition: color 0.12s;
+}
+.oc-bucket-toggle:first-child { border-top: none; }
+.oc-bucket-toggle.green { color: var(--accent); }
+.oc-bucket-toggle.gold  { color: var(--gold); }
+.oc-bucket-toggle.red   { color: var(--red); }
+.oc-bucket-toggle .oc-chev { font-size: 10px; transition: transform 0.2s; }
+.oc-bucket-toggle .oc-chev.open { transform: rotate(90deg); }
+
+.oc-name-list {
+  display: none;
+  background: var(--surface);
+  border-radius: 6px;
+  margin-bottom: 6px;
+  max-height: 260px;
+  overflow-y: auto;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-2);
+}
+.oc-name-list.open { display: block; }
+.oc-name-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 5px 12px;
+  border-bottom: 1px solid var(--surface-2);
+}
+.oc-name-row:last-child { border-bottom: none; }
+.oc-name-sno { width: 38px; flex-shrink: 0; font-weight: 600; color: var(--ink-3); }
+.oc-name-name { flex: 1; }
+.oc-name-date { color: var(--ink-4); white-space: nowrap; font-size: 11px; }
+
+.oc-placeholder {
+  text-align: center;
+  color: var(--ink-3);
+  font-size: 12.5px;
+  padding: 1.5rem;
+  line-height: 1.6;
+}
+
+/* ─── INFO BANNER ────────────────────────────────── */
+.info-banner {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  background: #eaf4ff;
+  border: 1px solid #aed4f5;
+  border-left: 4px solid #2e86c1;
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+}
+.info-banner-icon {
+  font-size: 20px;
+  color: #2e86c1;
+  flex-shrink: 0;
+  line-height: 1.3;
+}
+.info-banner-body {
+  flex: 1;
+}
+.info-banner-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #1a5f8a;
+  margin-bottom: 0.4rem;
+}
+.info-banner-body p {
+  font-size: 12.5px;
+  color: #1f4e79;
+  line-height: 1.65;
+  margin-bottom: 0.35rem;
+}
+.info-banner-body p:last-child { margin-bottom: 0; }
+.info-banner-body strong { font-weight: 600; color: #154360; }
+
+/* ─── DATA LOAD PROGRESS BANNER ──────────────────── */
+.gdrive-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 20px;
+  background: #e8f5e9;
+  border-bottom: 1px solid #c8e6c9;
+  font-size: 13px;
+}
+.gdrive-banner.state-error { background: #fff8e1; border-bottom-color: #ffe0a3; }
+.gdrive-icon { font-size: 18px; flex-shrink: 0; }
+.gdrive-text-wrap { flex: 1; min-width: 0; }
+.gdrive-status-line {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+#gdrive-status { color: #2e7d32; font-weight: 500; }
+.state-error #gdrive-status { color: #92400e; }
+#gdrive-size { font-family: var(--mono); font-size: 11.5px; color: #4a7a52; white-space: nowrap; }
+.state-error #gdrive-size { color: #92400e; }
+.gdrive-progress-track {
+  margin-top: 6px;
+  width: 100%;
+  max-width: 420px;
+  height: 6px;
+  background: rgba(46,125,50,0.15);
+  border-radius: 4px;
+  overflow: hidden;
+  display: none;
+}
+.gdrive-progress-track.show { display: block; }
+.gdrive-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: #4caf50;
+  border-radius: 4px;
+  transition: width 0.15s ease;
+}
+.gdrive-progress-fill.indeterminate {
+  width: 35% !important;
+  animation: gdrive-indet 1.1s ease-in-out infinite;
+}
+@keyframes gdrive-indet {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(285%); }
+}
+.gdrive-refresh-btn {
+  margin-left: auto;
+  padding: 4px 12px;
+  border: 1px solid #4caf50;
+  background: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+.state-error .gdrive-refresh-btn { border-color: #d97706; color: #92400e; }
+
+/* ─── GENDER SPLASH SCREEN ────────────────────────── */
+.gender-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: var(--ink);
+  background: radial-gradient(circle at 30% 20%, #12281c 0%, var(--ink) 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+.gender-splash.hidden { display: none; }
+.gender-splash-card {
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+  padding: 2.5rem 2.5rem 2rem;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+}
+.gender-splash-logo {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.gender-splash-sub {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  margin-bottom: 1.75rem;
+}
+.gender-splash-prompt {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 1.25rem;
+}
+.gender-splash-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.gender-splash-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem 1rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+}
+.gender-splash-btn:hover { border-color: var(--accent); background: var(--accent-pale); }
+.gender-splash-btn:active { transform: scale(0.97); }
+.gender-splash-icon { font-size: 30px; }
+.gender-splash-btn.male .gender-splash-icon { color: #2a5c8a; }
+.gender-splash-btn.female .gender-splash-icon { color: #b5751a; }
+.gender-splash-note {
+  margin-top: 1.5rem;
+  font-size: 11.5px;
+  color: var(--ink-4);
+  line-height: 1.5;
+}
+
+/* ─── MAIN CONTENT LOAD GATE ─────────────────────── */
+.content-loading-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 3rem 2rem;
+  text-align: center;
+  color: var(--ink-3);
+  font-size: 13px;
+}
+.content-loading-card .spinner { margin-bottom: 1rem; }
+.content-loading-card .cl-title { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.content-loading-card.state-error {
+  border-color: #f3cf9a;
+  background: #fffaf0;
+}
+.content-loading-card.state-error .cl-icon { font-size: 30px; margin-bottom: 0.75rem; }
+.content-loading-card.state-error .cl-title { color: #92400e; }
+.content-loading-card .cl-retry-btn {
+  margin-top: 1.25rem;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--white);
+  background: var(--accent);
+  border: none;
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.content-loading-card.state-error .cl-retry-btn { background: #d97706; }
+.content-loading-card .cl-retry-btn:hover { opacity: 0.9; }
+.content-loading-card .cl-error-detail {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: #92400e;
+  margin-top: 8px;
+  word-break: break-word;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ── GENDER SPLASH SCREEN ─────────────────────────── -->
+<div id="genderSplash" class="gender-splash">
+  <div class="gender-splash-card">
+    <div class="gender-splash-logo">Promotion Predictor</div>
+    <div class="gender-splash-sub">Sindh College Education Department</div>
+    <div class="gender-splash-prompt">Select which Seniority List to load</div>
+    <div class="gender-splash-btns">
+      <button type="button" class="gender-splash-btn male" onclick="selectGenderList('male')">
+        <span class="gender-splash-icon">&#9794;</span>
+        <span>Male</span>
+      </button>
+      <button type="button" class="gender-splash-btn female" onclick="selectGenderList('female')">
+        <span class="gender-splash-icon">&#9792;</span>
+        <span>Female</span>
+      </button>
+    </div>
+    <div class="gender-splash-note">You can switch lists later from the sidebar menu.</div>
+  </div>
+</div>
+
+<div id="gdrive-banner" class="gdrive-banner" style="display:none;">
+  <span class="gdrive-icon" id="gdrive-icon">&#9729;</span>
+  <div class="gdrive-text-wrap">
+    <div class="gdrive-status-line">
+      <span id="gdrive-status">Loading from Google Drive...</span>
+      <span id="gdrive-size"></span>
+    </div>
+    <div class="gdrive-progress-track" id="gdrive-progress-track">
+      <div class="gdrive-progress-fill" id="gdrive-progress-fill"></div>
+    </div>
+  </div>
+  <button class="gdrive-refresh-btn" onclick="loadFromGoogleDrive()">&#8635; Refresh</button>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="menu-wrap" id="topMenuWrap">
+    <button class="menu-btn" id="topMenuBtn" onclick="toggleTopMenu()" type="button" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <!-- Backdrop overlay -->
+    <div class="menu-overlay" id="menuOverlay" onclick="closeTopMenu()"></div>
+    <!-- Left sidebar drawer -->
+    <div class="menu-dropdown" id="topMenuDropdown">
+      <div class="menu-sidebar-header">
+        <span class="menu-sidebar-title">Navigation</span>
+        <button class="menu-sidebar-close" onclick="closeTopMenu()" type="button" aria-label="Close menu">&#10005;</button>
+      </div>
+      <div class="menu-section-label">Options</div>
+      <button class="menu-item" type="button" data-key="seats" onclick="menuAction('seats')">
+        <span class="menu-item-icon">&#9881;</span>
+        <span class="menu-item-text">Edit Sanctioned Seats</span>
+        <span class="menu-item-check">&#10003;</span>
+      </button>
+      <button class="menu-item" type="button" data-key="upload" onclick="menuAction('upload')">
+        <span class="menu-item-icon">&#8679;</span>
+        <span class="menu-item-text">Load Fresh Seniority Data</span>
+        <span class="menu-item-check">&#10003;</span>
+      </button>
+      <button class="menu-item" type="button" data-key="method" onclick="menuAction('method')">
+        <span class="menu-item-icon">&#9432;</span>
+        <span class="menu-item-text">How this Prediction Method Works</span>
+        <span class="menu-item-check">&#10003;</span>
+      </button>
+      <button class="menu-item" type="button" data-key="seniority" onclick="menuAction('seniority')">
+        <span class="menu-item-icon">&#9776;</span>
+        <span class="menu-item-text">Show / Hide Seniority List</span>
+        <span class="menu-item-check">&#10003;</span>
+      </button>
+    </div>
+  </div>
+  
+  <div class="topbar-title">Promotion Predictor<span class="topbar-title-sub"> Developed By Touqeer Ahmed</span></div>
+</div>
+
+<div class="upload-panel" id="seatsPanel">
+  <div class="upload-panel-inner">
+    <div class="upload-panel-text">
+      <strong>Edit Total Sanctioned Seats</strong>
+      <span>Update the sanctioned seat count per grade (e.g. after a policy increase). This changes how many vacancies exist and feeds directly into the promotion forecast, so re-run any forecast after saving.</span>
+    </div>
+    <div class="seats-edit-row">
+      <label class="seats-field"><span>BS-17</span><input type="number" id="seatsInput17" min="0" step="1"></label>
+      <label class="seats-field"><span>BS-18</span><input type="number" id="seatsInput18" min="0" step="1"></label>
+      <label class="seats-field"><span>BS-19</span><input type="number" id="seatsInput19" min="0" step="1"></label>
+      <label class="seats-field"><span>BS-20</span><input type="number" id="seatsInput20" min="0" step="1"></label>
+      <button class="upload-choose-btn" onclick="saveSanctionedSeats()" type="button">Save</button>
+    </div>
+  </div>
+  <div class="upload-status" id="seatsStatus"></div>
+</div>
+
+<input type="file" id="freshDataInput" accept=".xlsx,.xls" style="display:none">
+<div class="upload-panel" id="uploadPanel">
+  <div class="upload-panel-inner">
+    <div class="upload-panel-text">
+      <strong>Load Fresh Seniority Data</strong>
+      <span>Upload an updated seniority workbook (sheets named exactly <em>BS-17</em>, <em>BS-18</em>, <em>BS-19</em>, <em>BS-20</em>, each with columns S.NO. / Name of Professor / D.O.B.) to replace the current data and refresh the strength cards, forecast, and retirement calendar below. Include an optional <em>Sanctioned Seats</em> sheet (header row BS-17 / BS-18 / BS-19 / BS-20, values in the row below) to update sanctioned seat counts at the same time.</span>
+    </div>
+    <button class="upload-choose-btn" onclick="document.getElementById('freshDataInput').click()" type="button">Choose File</button>
+  </div>
+  <div class="upload-status" id="uploadStatus"></div>
+</div>
+
+<div class="page">
+
+  <!-- ── CONTENT LOADING / ERROR PLACEHOLDER (shown until data resolves) ── -->
+  <div class="content-loading-card" id="contentLoadingPlaceholder">
+    <div class="spinner"></div>
+    <div class="cl-title" id="clTitle">Loading seniority data&hellip;</div>
+    <div id="clBody">Fetching the latest workbook from Google Drive before showing the dashboard.</div>
+  </div>
+
+  <!-- ── MAIN CONTENT (hidden until data load resolves, success or fallback) ── -->
+  <div id="mainContent" style="display:none;">
+
+  <!-- ── METHOD EXPLAINER ── -->
+  <div class="method-info-box" id="methodInfoBox">
+    <p class="method-intro">Every prediction is backed by a day-by-day seniority simulation, not a rough estimate. Click &ldquo;Show simulation log&rdquo; on any forecast result to see the full run &mdash; here is what it means.</p>
+
+    <div class="method-step">
+      <div class="method-step-num">1</div>
+      <div class="method-step-body">
+        <h4>Day 0 &mdash; Normalize</h4>
+        <p>The simulation starts today. It checks each grade's sanctioned seats against how many are actually filled, removes anyone who has already retired, and immediately promotes the most senior eligible people upward to fill any open vacancies.</p>
+      </div>
+    </div>
+
+    <div class="method-step">
+      <div class="method-step-num">2</div>
+      <div class="method-step-body">
+        <h4>Forward Simulation &mdash; Day by Day</h4>
+        <p>From there, the simulation jumps forward to each future retirement date. Every time someone retires, their seat opens up and the next most senior person is promoted into it &mdash; cascading through BS-19 &rarr; BS-20, BS-18 &rarr; BS-19, and BS-17 &rarr; BS-18 as needed. The tracked person's rank is recalculated after every step.</p>
+      </div>
+    </div>
+
+    <div class="method-step">
+      <div class="method-step-num">3</div>
+      <div class="method-step-body">
+        <h4>Highlighted Milestones</h4>
+        <p>Whenever the person you searched for is promoted &mdash; or retires before a promotion comes through &mdash; it is called out in a highlighted box like this, so the key moments are easy to spot in the log:</p>
+        <div class="method-preview-row"><div class="log-promo-row">TARGET PROMOTED BS-19 &rarr; BS-20</div></div>
+      </div>
+    </div>
+
+    <div class="method-step">
+      <div class="method-step-num">4</div>
+      <div class="method-step-body">
+        <h4>Final Result</h4>
+        <p>The log ends with a summary: the person's name, retirement date, and the projected date(s) they reach BS-19 and BS-20 &mdash; or &ldquo;Not Reached&rdquo; if retirement or the simulation horizon comes first.</p>
+      </div>
+    </div>
+
+    <p class="method-footnote">This transparency means you are never just trusting a predicted date &mdash; you can scroll through the exact seniority math and promotion cascade that produced it.</p>
+  </div>
+
+
+  <!-- ── SENIORITY LIST ── -->
+  
+  <div class="seniority-panel" id="seniorityPanel">
+  <div class="seniority-tab-bar">
+      <button class="seniority-tab" id="stab17" onclick="switchSTab(17)">BS-17</button>
+      <button class="seniority-tab active" id="stab18" onclick="switchSTab(18)">BS-18</button>
+      <button class="seniority-tab" id="stab19" onclick="switchSTab(19)">BS-19</button>
+      <button class="seniority-tab" id="stab20" onclick="switchSTab(20)">BS-20</button>
+    </div>
+    <div class="seniority-search-row">
+      <input type="text" id="senioritySearch" placeholder="Search by name or S.No..." oninput="renderSeniorityTable()">
+      <span class="seniority-count" id="seniorityCount"></span>
+    </div>
+    <div class="seniority-table-wrap" id="seniorityTableWrap"></div>
+  </div>
+
+  <!-- ── ACTIVE LIST STATUS ── -->
+  <div class="active-list-bar" id="activeListBar">
+    <span class="active-list-dot"></span>
+    <span class="active-list-text" id="activeListText"></span>
+    <button class="active-list-switch-btn" type="button" onclick="switchGenderList()">&#8646; Switch List</button>
+  </div>
+
+  <!-- ── INFO BANNER ── -->
+  <div class="info-banner">
+    <div class="info-banner-icon">&#9432;</div>
+    <div class="info-banner-body">
+      <div class="info-banner-title">About This Tool</div>
+      <p>The Promotion Predictor estimates an employee's promotion due date based on Seniority Lists. It can be updated with fresh Seniority Lists, increased SNEs, and revisions to the Four-Tier Ratio.</p>
+      <p>Dynamic factors such as <strong>deferred cases and future vacancies</strong> are not included in prediction. The predicted date is <strong>indicative only</strong>; actual promotion is subject to <strong>Board 1, Board 2</strong>.</p>
+    </div>
+  </div>
+
+  <!-- ── GRADE STATISTICS ── -->
+  <div class="section-header">
+    <span class="section-eyebrow">Overview</span>
+    <span class="section-title">Strength by Grade</span>
+  </div>
+
+  <div class="stats-grid" id="statsGrid"></div>
+
+  <!-- ── ROSTER OUTCOME SUMMARY ── -->
+  <div class="section-header" style="margin-top:2.5rem;">
+    <span class="section-eyebrow">Analysis</span>
+    <span class="section-title">Seniority List Analysis</span>
+  </div>
+  <div>
+    <button class="oc-run-btn" onclick="runRosterOutcomeSimulation();renderOutcomeCards();" type="button">&#8635; Re-run Analysis</button>
+  </div>
+  <div class="oc-grid" id="outcomeGrid">
+    <div class="oc-placeholder">Running analysis&hellip;</div>
+  </div>
+
+  <!-- ── SUBJECT STRENGTH MATRIX ── -->
+  <div class="section-header" style="margin-top:2.5rem;">
+    <span class="section-eyebrow">Analysis</span>
+    <span class="section-title">Subject Strength</span>
+  </div>
+  <div class="subject-strength-note">Counts reflect staff currently active as of today (already-retired persons excluded), same basis as the Strength by Grade cards above.</div>
+  <div class="subject-table-wrap" id="subjectStrengthWrap">
+    <div class="oc-placeholder">Loading&hellip;</div>
+  </div>
+
+  <!-- ── SUBJECT-WISE RETIREMENT OUTLOOK ── -->
+  <div class="section-header" style="margin-top:2.5rem;">
+    <span class="section-eyebrow">Analysis</span>
+    <span class="section-title">Subject-wise Retirement Outlook</span>
+  </div>
+  <div class="subject-strength-note">Headcount per subject retiring within 1 / 2 / 5 years from today, across all grades. Sorted by most urgent (5-year) count first.</div>
+  <div class="subject-table-wrap" id="subjectRetirementWrap">
+    <div class="oc-placeholder">Loading&hellip;</div>
+  </div>
+
+  <!-- ── SEARCH ── -->
+  <div class="section-header">
+    <span class="section-eyebrow">Predictor</span>
+    <span class="section-title">Promotion Forecast</span>
+  </div>
+
+  <div class="search-panel">
+    <div class="search-panel-top">
+
+      <!-- Mode toggle -->
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="modeSingle" onclick="setMode('single')">Single</button>
+        <button class="mode-btn" id="modeCompare" onclick="setMode('compare')">Compare</button>
+      </div>
+
+      <!-- Single mode -->
+      <div id="singleFields">
+        <div class="search-fields">
+          <div>
+            <div class="field-label">Current Grade</div>
+            <select class="field-control" id="gradeSelect">
+              <option value="17">BS-17</option>
+              <option value="18">BS-18</option>
+              <option value="19">BS-19</option>
+              <option value="20">BS-20</option>
+            </select>
+          </div>
+          <div>
+            <div class="field-label">Seniority Number</div>
+            <input class="field-control" type="number" id="snoInput" placeholder="e.g. 1292" min="1">
+          </div>
+          <div>
+            <button class="btn-predict" id="predictBtn" onclick="doPredict()">Run Forecast</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Compare mode -->
+      <div id="compareFields" style="display:none;">
+        <div class="compare-fields">
+          <div class="compare-person">
+            <div class="compare-person-label">&#9632; Person A</div>
+            <div style="margin-bottom:0.6rem;">
+              <div class="field-label">Current Grade</div>
+              <select class="field-control" id="gradeSelectA" onchange="syncGrade('A')">
+                <option value="17">BS-17</option>
+                <option value="18">BS-18</option>
+                <option value="19">BS-19</option>
+              </select>
+            </div>
+            <div>
+              <div class="field-label">Seniority Number</div>
+              <input class="field-control" type="number" id="snoInputA" placeholder="e.g. 126" min="1">
+            </div>
+          </div>
+          <div class="compare-person b">
+            <div class="compare-person-label">&#9632; Person B</div>
+            <div style="margin-bottom:0.6rem;">
+              <div class="field-label">Current Grade</div>
+              <select class="field-control" id="gradeSelectB" onchange="syncGrade('B')">
+                <option value="17">BS-17</option>
+                <option value="18">BS-18</option>
+                <option value="19">BS-19</option>
+              </select>
+            </div>
+            <div>
+              <div class="field-label">Seniority Number</div>
+              <input class="field-control" type="number" id="snoInputB" placeholder="e.g. 1292" min="1">
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:1rem;">
+          <button class="btn-predict" id="compareBtn" onclick="doCompare()" style="width:100%;">Compare Forecasts</button>
+        </div>
+      </div>
+
+    </div>
+    <div class="result-area" id="resultArea"></div>
+  </div>
+
+  <!-- ── RETIREMENT CALENDAR ── -->
+  <div class="retirement-section">
+    <div class="section-header">
+      <span class="section-eyebrow">Calendar</span>
+      <span class="section-title">Month-wise Retirements</span>
+    </div>
+    <div class="cal-controls">
+      <span class="cal-filter-label">Show grade:</span>
+      <div class="cal-filter-btns">
+        <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+        <button class="filter-btn" onclick="setFilter('17',this)">BS-17</button>
+        <button class="filter-btn" onclick="setFilter('18',this)">BS-18</button>
+        <button class="filter-btn" onclick="setFilter('19',this)">BS-19</button>
+        <button class="filter-btn" onclick="setFilter('20',this)">BS-20</button>
+      </div>
+    </div>
+    <div class="cal-table-wrap">
+      <table class="cal-table" id="calTable">
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th style="text-align:center">BS-20</th>
+            <th style="text-align:center">BS-19</th>
+            <th style="text-align:center">BS-18</th>
+            <th style="text-align:center">BS-17</th>
+            <th style="text-align:center">Total</th>
+            <th>Retirees</th>
+          </tr>
+        </thead>
+        <tbody id="calBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  </div><!-- /mainContent -->
+
+</div><!-- /page -->
+
+<script>
+const APP = {"seniority":{"18":[],"19":[],"20":[],"17":[]},"monthly":{},"sanctioned":{"18":1960,"19":971,"20":118,"17":3305},"filled":{"18":1771,"19":865,"20":53,"17":2279}};
+// Compute today's date in Pakistan Standard Time (GMT+5, no DST)
+const _pkt = new Date(Date.now() + 5 * 60 * 60 * 1000);
+const TODAY = [_pkt.getUTCFullYear(), _pkt.getUTCMonth() + 1, _pkt.getUTCDate()];
+// Update topbar display
+(function(){
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const el = document.getElementById('topbar-date');
+  if(el) el.textContent = TODAY[2] + ' ' + months[TODAY[1]-1] + ' ' + TODAY[0];
+})();
+// SANCTIONED reads live from APP.sanctioned so edits via "Edit Sanctioned Seats"
+// immediately apply to the simulation without a page reload.
+function SANCTIONED_VAL(g){return APP.sanctioned[g];}
+const SANCTIONED = new Proxy({},{get:(_,g)=>SANCTIONED_VAL(g)});
+// Grades tracked, lowest to highest. Add/remove a tier here in future — every
+// function below that touches grades reads from GRADES/TOP_GRADE, not a literal list.
+const GRADES=[17,18,19,20];
+const TOP_GRADE=GRADES[GRADES.length-1];
+const GRADES_DESC=[...GRADES].reverse(); // [20,19,18,17] — convenience for display order
+
+
+// ── Google Drive Auto-Fetch ────────────────────────────────────────────
+// Two separate seniority workbooks — one per gender list. Same shape/columns,
+// loaded via the exact same loadFromGoogleDrive()/parseFreshWorkbook() path;
+// only the source file ID differs.
+const GDRIVE_FILE_IDS = {
+  male:   '1_jLGSj0HUTDSK52pV6JSh5MOUI8FedXK',
+  female: '1XAeGQxPWqDBfiaCzrCwExUvk4C45P6bI'
+};
+let ACTIVE_GENDER = null; // set by selectGenderList() before any load happens
+function currentGdriveUrl(){
+  const id = GDRIVE_FILE_IDS[ACTIVE_GENDER];
+  return `https://docs.google.com/spreadsheets/d/${id}/export?format=xlsx`;
+}
+
+function fmtBytes(n){
+  if(n===null||n===undefined||isNaN(n))return '';
+  if(n<1024)return n+' B';
+  if(n<1024*1024)return (n/1024).toFixed(0)+' KB';
+  return (n/(1024*1024)).toFixed(2)+' MB';
+}
+
+// Reveals the dashboard (stats/outcome/search/calendar) and retires the
+// initial full-page loading placeholder. Called once a data load succeeds,
+// so the person is never shown stat cards computed from an incomplete or
+// empty dataset.
+function revealMainContent(){
+  const ph=document.getElementById('contentLoadingPlaceholder');
+  const mc=document.getElementById('mainContent');
+  if(ph)ph.style.display='none';
+  if(mc)mc.style.display='';
+}
+
+function hasAnyData(){
+  return GRADES.some(g=>((APP.seniority[String(g)]||[]).length)>0);
+}
+
+// Shown in place of the dashboard when the Google Drive fetch/parse fails
+// AND there is no usable data already loaded (e.g. from a prior successful
+// load or manual file upload) to fall back to.
+function showLoadError(message){
+  const ph=document.getElementById('contentLoadingPlaceholder');
+  const title=document.getElementById('clTitle');
+  const body=document.getElementById('clBody');
+  if(!ph)return;
+  ph.classList.add('state-error');
+  ph.querySelector('.spinner')?.remove();
+  if(title)title.textContent='Could not load seniority data';
+  if(body){
+    body.innerHTML=`
+      <div class="cl-icon">&#9888;&#65039;</div>
+      <div>The seniority workbook could not be fetched or read from Google Drive, and no data is currently available to display.</div>
+      <div class="cl-error-detail">${esc(message||'')}</div>
+      <button class="cl-retry-btn" onclick="location.reload()">&#8635; Retry</button>
+    `;
+  }
+}
+
+async function loadFromGoogleDrive() {
+  const banner = document.getElementById('gdrive-banner');
+  const status = document.getElementById('gdrive-status');
+  const sizeEl = document.getElementById('gdrive-size');
+  const track = document.getElementById('gdrive-progress-track');
+  const fill = document.getElementById('gdrive-progress-fill');
+
+  if(banner){ banner.style.display='flex'; banner.classList.remove('state-error'); }
+  if(status) status.textContent = 'Connecting to Google Drive\u2026';
+  if(sizeEl) sizeEl.textContent = '';
+  if(track) track.classList.add('show');
+  if(fill){ fill.style.width='0%'; fill.classList.add('indeterminate'); }
+
+  try {
+    if(!ACTIVE_GENDER) throw new Error('No list selected.');
+    const resp = await fetch(currentGdriveUrl());
+    if(!resp.ok) throw new Error('HTTP ' + resp.status);
+
+    // Stream the response so we can report bytes downloaded / total size —
+    // a plain resp.arrayBuffer() gives no progress signal at all.
+    const totalBytes = parseInt(resp.headers.get('Content-Length') || '0', 10) || null;
+    if(status) status.textContent = 'Downloading seniority workbook\u2026';
+
+    let buf;
+    if(resp.body && resp.body.getReader){
+      const reader = resp.body.getReader();
+      const chunks = [];
+      let received = 0;
+      while(true){
+        const {done, value} = await reader.read();
+        if(done) break;
+        chunks.push(value);
+        received += value.length;
+        if(fill) fill.classList.remove('indeterminate');
+        if(totalBytes){
+          const pct = Math.min(100, Math.round((received/totalBytes)*100));
+          if(fill) fill.style.width = pct+'%';
+          if(sizeEl) sizeEl.textContent = fmtBytes(received)+' / '+fmtBytes(totalBytes)+' ('+pct+'%)';
+        } else {
+          if(fill) fill.style.width = '100%';
+          if(sizeEl) sizeEl.textContent = fmtBytes(received)+' downloaded';
+        }
+      }
+      const merged = new Uint8Array(received);
+      let offset = 0;
+      for(const c of chunks){ merged.set(c, offset); offset += c.length; }
+      buf = merged.buffer;
+    } else {
+      // Fallback for browsers without a streaming reader
+      buf = await resp.arrayBuffer();
+      if(sizeEl) sizeEl.textContent = fmtBytes(buf.byteLength)+' downloaded';
+      if(fill){ fill.classList.remove('indeterminate'); fill.style.width='100%'; }
+    }
+
+    if(status) status.textContent = 'Parsing workbook\u2026';
+    const wb = XLSX.read(buf, {type:'array', cellDates:true});
+    const result = parseFreshWorkbook(wb); // throws if the workbook has zero usable rows
+
+    refreshAllData(result.seniority, result.filled, result.sanctioned);
+
+    const seatsNote = result.sanctioned ? ' | Sanctioned seats updated: ' + GRADES_DESC.map(g=>'BS-'+g+': '+result.sanctioned[g]).join(', ') : ' | Sanctioned seats sheet not found, kept existing values';
+    if(status) status.textContent = '\u2713 Live data loaded from Google Drive (' + Object.values(result.filled).reduce((a,b)=>a+b,0) + ' total records)' + seatsNote;
+    if(track) track.classList.remove('show');
+    revealMainContent();
+  } catch(err) {
+    console.warn('Google Drive fetch failed:', err);
+    if(banner) banner.classList.add('state-error');
+    if(status) status.textContent = '\u26a0 Could not load from Google Drive. (' + err.message + ')';
+    if(track) track.classList.remove('show');
+
+    if(hasAnyData()){
+      // Data from an earlier successful load or manual upload is still in
+      // APP — show the dashboard with that rather than blocking the person.
+      revealMainContent();
+      renderStats(); renderCalendar(); runRosterOutcomeSimulation(); renderOutcomeCards();
+      renderSubjectStrength(); renderSubjectRetirementOutlook();
+    } else {
+      // Nothing to show at all — don't reveal a dashboard full of zeros;
+      // show a clear error state with a retry option instead.
+      showLoadError(err.message);
+    }
+  }
+}
+
+// Splash-screen selection: nothing loads from Drive until the person picks
+// Male or Female. Selecting a list hides the splash, updates the topbar tag,
+// remembers the choice for this browser (so a reload defaults to it), and
+// kicks off the normal loadFromGoogleDrive() flow unchanged.
+function applyGenderTag(gender){
+  const bar=document.getElementById('activeListBar');
+  const text=document.getElementById('activeListText');
+  if(!bar||!text)return;
+  const label=gender==='male'?'Male':'Female';
+  text.innerHTML='<strong>'+label+' Seniority List</strong> is currently active — all forecasts, statistics, and the retirement calendar below reflect this list.';
+  bar.className='active-list-bar '+gender;
+}
+
+function selectGenderList(gender){
+  ACTIVE_GENDER=gender;
+  try{ localStorage.setItem('promoPredictorGender', gender); }catch(e){/* storage may be unavailable */}
+  const splash=document.getElementById('genderSplash');
+  if(splash)splash.classList.add('hidden');
+  applyGenderTag(gender);
+  loadFromGoogleDrive();
+}
+
+// Lets the person switch lists later from the sidebar without a full page
+// reload — clears current data, re-shows the loading placeholder, and fetches
+// the other gender's workbook via the same load path.
+function switchGenderList(){
+  toggleTopMenu(false);
+  const next = ACTIVE_GENDER==='male' ? 'female' : 'male';
+  const proceed = confirm('Switch to the '+(next==='male'?'Male':'Female')+' seniority list? This replaces the currently loaded data.');
+  if(!proceed)return;
+  APP.seniority={"18":[],"19":[],"20":[],"17":[]};
+  APP.filled={18:0,19:0,20:0,17:0};
+  APP.monthly={};
+  ROSTER_OUTCOME=null;
+  const ph=document.getElementById('contentLoadingPlaceholder');
+  const mc=document.getElementById('mainContent');
+  if(ph){
+    ph.style.display='';
+    ph.classList.remove('state-error');
+    if(!ph.querySelector('.spinner')){
+      const sp=document.createElement('div'); sp.className='spinner'; ph.prepend(sp);
+    }
+  }
+  if(mc)mc.style.display='none';
+  const clTitle=document.getElementById('clTitle');
+  const clBody=document.getElementById('clBody');
+  if(clTitle)clTitle.textContent='Loading seniority data\u2026';
+  if(clBody)clBody.innerHTML='Fetching the latest workbook from Google Drive before showing the dashboard.';
+  selectGenderList(next);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  // If a gender was already chosen on a previous visit, skip the splash and
+  // load straight away; otherwise wait at the splash for a selection.
+  let saved=null;
+  try{ saved=localStorage.getItem('promoPredictorGender'); }catch(e){/* ignore */}
+  if(saved==='male'||saved==='female'){
+    selectGenderList(saved);
+  }
+  // else: leave splash visible — selectGenderList() runs on button click.
+});
+// ─────────────────────────────────────────────────────────────────────
+
+// ── DATE UTILS ─────────────────────────────────────
+function mkDate(y,m,d){return new Date(Date.UTC(y,m-1,d));}
+function parseDate(s){const[y,m,d]=s.split('-').map(Number);return mkDate(y,m,d);}
+function simToday(){return mkDate(...TODAY);}
+function retireDate(dobStr){
+  const d=parseDate(dobStr);
+  try{return mkDate(d.getUTCFullYear()+60,d.getUTCMonth()+1,d.getUTCDate());}
+  catch{return mkDate(d.getUTCFullYear()+60,d.getUTCMonth()+1,d.getUTCDate()-1);}
+}
+function fmtDate(d){
+  if(!d)return'—';
+  return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'});
+}
+function fmtMonthLabel(key){
+  const[y,m]=key.split('-').map(Number);
+  const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m-1];
+  return{mo,y};
+}
+function yearsFrom(d1,d2){return((d2-d1)/(365.25*86400000)).toFixed(1);}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ── GRADE STATS ────────────────────────────────────
+function renderStats(){
+  const grid=document.getElementById('statsGrid');
+  const grades=GRADES_DESC;
+  const colors={20:'#c8922a',19:'#1a6640',18:'#2a5c8a',17:'#5a3d8a'};
+  const T0=simToday();
+  const todayLabel=fmtDate(T0);
+  grid.innerHTML=grades.map(g=>{
+    const s=APP.sanctioned[g];
+    const f=APP.filled[g];
+    const list=APP.seniority[String(g)]||[];
+    const retired=list.filter(p=>retireDate(p.dob)<=T0).length;
+    const v=(s-f)+retired;
+    const pct=Math.round(f/s*100);
+    return `<div class="grade-card">
+      <div class="grade-card-header">
+        <span class="grade-label">BS-${g}</span>
+        <div class="grade-fill-bar-wrap">
+          <div class="grade-fill-bar" style="width:${pct}%;background:${colors[g]}"></div>
+        </div>
+      </div>
+      <div class="grade-card-body">
+        <div class="stat-row">
+          <span class="stat-label">Total Sanctioned Seats</span>
+          <span class="stat-value">${s.toLocaleString()}</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Seniority List (Filled)</span>
+          <span class="stat-value full">${f.toLocaleString()} <span class="stat-pct">${pct}%</span></span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Retired till ${todayLabel}</span>
+          <span class="stat-value" style="color:var(--red)">${retired.toLocaleString()}</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Vacant Seats</span>
+          <span class="stat-value vacant">${v.toLocaleString()}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── SIMULATION ─────────────────────────────────────
+function runSimulation(targetSno,targetGrade){
+  const T0=simToday();
+  const HORIZON=new Date(Date.UTC(T0.getUTCFullYear()+40,T0.getUTCMonth(),T0.getUTCDate()));
+  function mk(p,og){const dob=parseDate(p.dob);return{id:og+'_'+p.sno,name:p.name,dob,retire:retireDate(p.dob)};}
+  const lists={};
+  for(const g of GRADES){
+    lists[g]=(APP.seniority[String(g)]||[]).map(p=>mk(p,g)).sort((a,b)=>parseInt(a.id.split('_')[1])-parseInt(b.id.split('_')[1]));
+  }
+  const targetId=targetGrade+'_'+targetSno;
+  const tp=lists[targetGrade].find(p=>p.id===targetId);
+  if(!tp)return{error:'S.No '+targetSno+' not found in BS-'+targetGrade+'.'};
+  const ownRetire=tp.retire;
+  let cg=targetGrade;
+  const STEPS=GRADES.slice(0,-1).map((g,i)=>[g,GRADES[i+1]]); // [[17,18],[18,19],[19,20]]
+  const result={};
+  for(const[a,b]of STEPS){result['BS'+a+'_to_BS'+b]=null;result['BS'+a+'_to_BS'+b+'_rank']=null;}
+  const log=[];
+
+  function trank(){const i=lists[cg].findIndex(p=>p.id===targetId);return i===-1?null:i+1;}
+  function vac(){const v={};for(const g of GRADES)v[g]=Math.max(0,SANCTIONED[g]-lists[g].length);return v;}
+
+  // Processes grades top-down: each grade's vacancies pull from the grade
+  // directly below it (lowest S.No first), which opens new vacancies one
+  // level further down, and so on. The bottom grade has no feeder below.
+  function cascade(v,d){
+    const lines=[];
+    for(const g of GRADES_DESC){
+      const below=g-1;
+      if(!lists[below])continue; // bottom grade — no feeder
+      const vg=v[g]||0;
+      if(vg<=0)continue;
+      const n=Math.min(vg,lists[below].length);
+      const pr=lists[below].splice(0,n);
+      for(const p of pr){
+        lists[g].push(p);
+        if(p.id===targetId){
+          const key='BS'+below+'_to_BS'+g;
+          result[key]=d;cg=g;result[key+'_rank']=trank();
+          lines.push({t:'promo',x:'  *** TARGET PROMOTED BS-'+below+' \u2192 BS-'+g+'  (New Seniority #'+result[key+'_rank']+' in BS-'+g+') ***'});
+        }
+      }
+      if(pr.length){
+        lines.push({t:'n',x:'  BS-'+g+': '+vg+' vacant \u2192 promoted '+pr.length+' from BS-'+below+' top'});
+        const feederNote=lists[below-1]?'creates '+pr.length+' new BS-'+below+' vacancies':'no feeder below';
+        lines.push({t:'n',x:'         (BS-'+below+' loses '+pr.length+' \u2192 '+feederNote+')'});
+      }
+      v[below]=(v[below]||0)+pr.length; // cascade further down
+    }
+    return lines;
+  }
+
+  // Day 0
+  log.push({t:'sep',x:'='.repeat(66)});
+  log.push({t:'day',x:'DAY 0  ['+fmtDate(T0)+']  \u2014  Normalize'});
+  log.push({t:'sep',x:'-'.repeat(66)});
+  const v0={};
+  for(const g of GRADES_DESC){
+    const st=SANCTIONED[g]-lists[g].length;
+    const ar=lists[g].filter(p=>p.retire<=T0);
+    lists[g]=lists[g].filter(p=>p.retire>T0);
+    v0[g]=st+ar.length;
+    log.push({t:'n',x:'  BS-'+g+': sanctioned='+SANCTIONED[g]+'  filled='+(lists[g].length+ar.length)+'  structural_vacant='+st+'  already_retired='+ar.length+'  \u2192 total vacant='+v0[g]});
+  }
+  log.push({t:'n',x:'  Vacant before cascade  \u2192  '+GRADES_DESC.map(g=>'BS-'+g+':'+v0[g]).join('  ')});
+  for(const l of cascade(v0,T0))log.push(l);
+  const va0=vac();
+  log.push({t:'n',x:'  Vacant after cascade   \u2192  '+GRADES_DESC.map(g=>'BS-'+g+':'+va0[g]).join('  ')});
+  log.push({t:'n',x:'  Target rank after Day-0: BS-'+cg+' rank='+trank()});
+  log.push({t:'n',x:''});
+
+  if(cg===TOP_GRADE)
+    return fin(result,tp,ownRetire,log,cg,false,T0,null);
+
+  // Forward
+  log.push({t:'sep',x:'-'.repeat(66)});
+  log.push({t:'day',x:'FORWARD SIMULATION  \u2014  Day by day'});
+  log.push({t:'sep',x:'-'.repeat(66)});
+  log.push({t:'n',x:''});
+
+  let pr=trank(),retiredFirst=false,stopDate=T0,finalRank=pr;
+
+  while(true){
+    let nxt=null;
+    for(const g of GRADES)for(const p of lists[g]){const t=p.retire.getTime();if(t>T0.getTime()&&t<=HORIZON.getTime()&&(nxt===null||t<nxt))nxt=t;}
+    if(nxt===null)break;
+    const dObj=new Date(nxt);
+    stopDate=dObj;
+    const rt={};let tRetired=false;
+    for(const g of GRADES){
+      const rl=lists[g].filter(p=>p.retire.getTime()===nxt);
+      if(rl.length){rt[g]=rl;lists[g]=lists[g].filter(p=>p.retire.getTime()!==nxt);for(const p of rl)if(p.id===targetId)tRetired=true;}
+    }
+    const vb=vac();
+    log.push({t:'day',x:'['+fmtDate(dObj)+']'});
+    log.push({t:'n',x:'  Vacant (before fill):  '+GRADES_DESC.map(g=>'BS-'+g+':'+vb[g]).join('  ')});
+    const rp=[];
+    for(const g of GRADES)if(rt[g]&&rt[g].length)rp.push('BS-'+g+': '+rt[g].length+' retired ('+rt[g].map(p=>p.name).join(', ')+')');
+    log.push({t:'n',x:'  Retirements: '+rp.join(' | ')});
+    if(tRetired){finalRank=pr;log.push({t:'promo',x:'  TARGET retires in BS-'+cg+'. No further promotion.'});log.push({t:'n',x:''});retiredFirst=true;break;}
+    for(const l of cascade(vb,dObj))log.push(l);
+    const va=vac();
+    log.push({t:'n',x:'  Vacant (after fill):   '+GRADES_DESC.map(g=>'BS-'+g+':'+va[g]).join('  ')});
+    const nr=trank();
+    log.push({t:'n',x:'  Target rank: BS-'+cg+' #'+(nr!==pr?pr+' \u2192 #'+nr:nr+'  (unchanged)')});
+    pr=nr;finalRank=nr;
+    log.push({t:'n',x:''});
+    if(cg===TOP_GRADE)break;
+  }
+  return fin(result,tp,ownRetire,log,cg,retiredFirst,stopDate,finalRank);
+}
+
+function fin(result,tp,ownRetire,log,cg,retiredFirst,stopDate,finalRank){
+  log.push({t:'sep',x:'-'.repeat(66)});
+  log.push({t:'day',x:'FINAL RESULT'});
+  log.push({t:'sep',x:'-'.repeat(66)});
+  log.push({t:'n',x:'Name       : '+tp.name});
+  log.push({t:'n',x:'Retirement : '+fmtDate(ownRetire)});
+  if(retiredFirst)log.push({t:'promo',x:'Outcome    : Retired before promotion.'});
+  for(const k of['BS18_to_BS19','BS19_to_BS20']){
+    const v=result[k],rk=result[k+'_rank'];
+    log.push({t:'n',x:'  '+k+': '+(v?fmtDate(v)+(rk?'  (new seniority #'+rk+')':'')+(v>ownRetire?' (AFTER own retirement)':''):'NOT REACHED')});
+  }
+  return{tp,ownRetire,result,log,cg,retiredFirst,stopDate,finalRank};
+}
+
+// ── PREDICT UI ─────────────────────────────────────
+// ── MODE TOGGLE ─────────────────────────────────────
+function setMode(mode){
+  const isSingle = mode === 'single';
+  document.getElementById('modeSingle').className  = 'mode-btn' + (isSingle ? ' active' : '');
+  document.getElementById('modeCompare').className = 'mode-btn' + (!isSingle ? ' active' : '');
+  document.getElementById('singleFields').style.display  = isSingle ? '' : 'none';
+  document.getElementById('compareFields').style.display = isSingle ? 'none' : '';
+  // clear result area when switching
+  const area = document.getElementById('resultArea');
+  area.className = 'result-area';
+  area.innerHTML = '';
+}
+
+// keep both grade dropdowns in sync
+function syncGrade(changed){
+  const a = document.getElementById('gradeSelectA');
+  const b = document.getElementById('gradeSelectB');
+  if(changed === 'A') b.value = a.value;
+  else a.value = b.value;
+}
+
+// ── COMPARE ─────────────────────────────────────────
+function doCompare(){
+  const area = document.getElementById('resultArea');
+  const grade = parseInt(document.getElementById('gradeSelectA').value);
+  const snoA  = parseInt(document.getElementById('snoInputA').value);
+  const snoB  = parseInt(document.getElementById('snoInputB').value);
+
+  if(!snoA || snoA < 1 || !snoB || snoB < 1){
+    area.className = 'result-area visible';
+    area.innerHTML = '<div class="error-msg">Please enter valid seniority numbers for both persons.</div>';
+    return;
+  }
+  if(snoA === snoB){
+    area.className = 'result-area visible';
+    area.innerHTML = '<div class="error-msg">Both seniority numbers are the same. Please enter two different persons.</div>';
+    return;
+  }
+
+  // validate both exist
+  const roster = APP.seniority[String(grade)] || [];
+  const entryA = roster.find(p => p.sno === snoA);
+  const entryB = roster.find(p => p.sno === snoB);
+  if(!entryA){ area.className='result-area visible'; area.innerHTML='<div class="error-msg">S.No '+snoA+' not found in BS-'+grade+'.</div>'; return; }
+  if(!entryB){ area.className='result-area visible'; area.innerHTML='<div class="error-msg">S.No '+snoB+' not found in BS-'+grade+'.</div>'; return; }
+
+  area.className = 'result-area visible';
+  area.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div><div style="font-size:12px;color:var(--ink-3)">Running simulations\u2026</div></div>';
+  document.getElementById('compareBtn').disabled = true;
+
+  setTimeout(() => {
+    try {
+      const simA = runSimulation(snoA, grade);
+      const simB = runSimulation(snoB, grade);
+      if(simA.error){ area.innerHTML='<div class="error-msg">'+esc(simA.error)+'</div>'; return; }
+      if(simB.error){ area.innerHTML='<div class="error-msg">'+esc(simB.error)+'</div>'; return; }
+
+      const htmlA = buildResult(simA, grade, snoA);
+      const htmlB = buildResult(simB, grade, snoB);
+      const summary = buildCompareSummary(simA, simB, snoA, snoB, grade);
+
+      area.innerHTML = `
+        <div style="padding:0.5rem 0 0.25rem;">
+          <div class="compare-result-grid">
+            <div>
+              <div style="font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--ink-3);margin-bottom:0.6rem;">&#9632; Person A &nbsp;—&nbsp; S.No ${snoA}</div>
+              ${htmlA}
+            </div>
+            <div>
+              <div style="font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--gold);margin-bottom:0.6rem;">&#9632; Person B &nbsp;—&nbsp; S.No ${snoB}</div>
+              ${htmlB}
+            </div>
+          </div>
+          ${summary}
+        </div>`;
+
+      // rebuild calendar from whichever sim ran longer
+      const stopDate = simA.stopDate > simB.stopDate ? simA.stopDate : simB.stopDate;
+      APP.monthly = buildMonthlyFromSimulation(APP.seniority, stopDate);
+      renderCalendar();
+    } catch(e){
+      area.innerHTML = '<div class="error-msg">Error: '+esc(e.message)+'</div>';
+    }
+    document.getElementById('compareBtn').disabled = false;
+  }, 30);
+}
+
+function buildCompareSummary(simA, simB, snoA, snoB, grade){
+  const nameA = esc(simA.tp.name);
+  const nameB = esc(simB.tp.name);
+
+  function dateDiffText(d1, d2){
+    // d1 is earlier
+    let y = d2.getUTCFullYear() - d1.getUTCFullYear();
+    let m = d2.getUTCMonth()   - d1.getUTCMonth();
+    let d = d2.getUTCDate()    - d1.getUTCDate();
+    if(d < 0){ m--; d += new Date(Date.UTC(d2.getUTCFullYear(), d2.getUTCMonth(), 0)).getUTCDate(); }
+    if(m < 0){ y--; m += 12; }
+    const parts = [];
+    if(y > 0) parts.push(y + (y===1?' year':' years'));
+    if(m > 0) parts.push(m + (m===1?' month':' months'));
+    if(d > 0) parts.push(d + (d===1?' day':' days'));
+    return parts.length ? parts.join(', ') : 'the same day';
+  }
+
+  const lines = [];
+
+  // ── Milestone comparisons — every intermediate grade the compared pair
+  // could reach (e.g. BS-18, BS-19 for a BS-17 starter) plus the final grade ──
+  const ALL_STEPS=GRADES.slice(0,-1).map((g,i)=>[g,GRADES[i+1]]);
+  const relevantSteps=ALL_STEPS.filter(([a])=>a>=grade);
+  relevantSteps.forEach(([a,b])=>{
+    const key='BS'+a+'_to_BS'+b;
+    const aD = simA.result[key];
+    const bD = simB.result[key];
+    if(aD && bD){
+      const earlier = aD <= bD ? {name:nameA,sno:snoA,d:aD} : {name:nameB,sno:snoB,d:bD};
+      const later   = aD <= bD ? {name:nameB,sno:snoB,d:bD} : {name:nameA,sno:snoA,d:aD};
+      const gap = dateDiffText(earlier.d, later.d);
+      lines.push(`<strong>${earlier.name}</strong> (S.No ${earlier.sno}) reaches <strong>BS-${b}</strong> on <strong>${fmtDate(earlier.d)}</strong> — <span class="gap-highlight">${gap}</span> ahead of <strong>${later.name}</strong> (S.No ${later.sno}, ${fmtDate(later.d)}).`);
+    } else if(aD && !bD){
+      lines.push(`<strong>${nameA}</strong> reaches <strong>BS-${b}</strong> on <strong>${fmtDate(aD)}</strong>. <strong>${nameB}</strong> does not reach BS-${b} within the simulation horizon.`);
+    } else if(!aD && bD){
+      lines.push(`<strong>${nameB}</strong> reaches <strong>BS-${b}</strong> on <strong>${fmtDate(bD)}</strong>. <strong>${nameA}</strong> does not reach BS-${b} within the simulation horizon.`);
+    } else {
+      lines.push(`Neither officer reaches <strong>BS-${b}</strong> within the 40-year simulation horizon.`);
+    }
+  });
+
+  // ── Retirement note ──
+  const retA = simA.ownRetire; const retB = simB.ownRetire;
+  if(simA.retiredFirst && !simB.retiredFirst)
+    lines.push(`<strong>${nameA}</strong> retires on ${fmtDate(retA)} before completing all promotions.`);
+  else if(!simA.retiredFirst && simB.retiredFirst)
+    lines.push(`<strong>${nameB}</strong> retires on ${fmtDate(retB)} before completing all promotions.`);
+  else if(simA.retiredFirst && simB.retiredFirst)
+    lines.push(`Both officers retire before completing all promotions.`);
+
+  return `<div class="compare-summary">${lines.map(l=>'<div style="margin-bottom:6px;">'+l+'</div>').join('')}</div>`;
+}
+
+// ── PREDICT UI ─────────────────────────────────────
+function doPredict(){
+  const grade=parseInt(document.getElementById('gradeSelect').value);
+  const sno=parseInt(document.getElementById('snoInput').value);
+  const area=document.getElementById('resultArea');
+  if(!sno||sno<1){
+    area.className='result-area visible';
+    area.innerHTML='<div class="error-msg">Please enter a valid seniority number.</div>';
+    return;
+  }
+
+  // ── Already-Retired early check ─────────────────────
+  const personEntry=APP.seniority[String(grade)]&&APP.seniority[String(grade)].find(p=>p.sno===sno);
+  if(!personEntry){
+    area.className='result-area visible';
+    area.innerHTML='<div class="error-msg">S.No '+sno+' not found in BS-'+grade+'.</div>';
+    return;
+  }
+  const T0now=simToday();
+  const retireDateNow=retireDate(personEntry.dob);
+  if(retireDateNow<=T0now){
+    area.className='result-area visible';
+    const dobFmt=fmtDate(parseDate(personEntry.dob));
+    const retFmt=fmtDate(retireDateNow);
+    area.innerHTML=`
+      <div style="background:var(--red-pale);border:1px solid #e8b4b0;border-radius:10px;padding:1.5rem 1.75rem;">
+        <div style="font-size:18px;font-weight:700;color:var(--red);margin-bottom:8px;">&#9888; Already Retired</div>
+        <div style="font-size:14px;font-weight:600;color:var(--ink);margin-bottom:6px;">${esc(personEntry.name)}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+          <span class="chip grade">BS-${grade}</span>
+          <span class="chip">S.No&nbsp;${sno}</span>
+          <span class="chip">DOB&nbsp;&nbsp;${dobFmt}</span>
+          <span class="chip" style="background:var(--red-pale);color:var(--red);border-color:#e8b4b0;">Retired&nbsp;${retFmt}</span>
+        </div>
+        <div style="font-size:13px;color:var(--red);font-weight:500;">
+          This officer retired on <strong>${retFmt}</strong> and is no longer eligible for promotion. No forecast can be generated.
+        </div>
+      </div>`;
+    return;
+  }
+  // ────────────────────────────────────────────────────
+
+  area.className='result-area visible';
+  area.innerHTML='<div class="spinner-wrap"><div class="spinner"></div><div style="font-size:12px;color:var(--ink-3)">Running simulation\u2026</div></div>';
+  document.getElementById('predictBtn').disabled=true;
+  setTimeout(()=>{
+    try{
+      const sim=runSimulation(sno,grade);
+      if(sim.error){area.innerHTML='<div class="error-msg">'+esc(sim.error)+'</div>';}
+      else{
+        area.innerHTML=buildResult(sim,grade,sno);
+        // Rebuild the month-wise retirement calendar to cover exactly the span
+        // this simulation ran (Day 0 \u2192 sim.stopDate), grade-at-retirement basis.
+        APP.monthly=buildMonthlyFromSimulation(APP.seniority,sim.stopDate);
+        renderCalendar();
+      }
+    }catch(e){area.innerHTML='<div class="error-msg">Error: '+esc(e.message)+'</div>';}
+    document.getElementById('predictBtn').disabled=false;
+  },40);
+}
+
+function buildResult(sim,grade,sno){
+  const{tp,ownRetire,result,log,retiredFirst,cg:finalGrade,finalRank}=sim;
+  const T0=simToday();
+
+  // person header
+  // Subject is metadata only (never gates the simulation), looked up here by
+  // sno from the source list rather than threaded through runSimulation().
+  const personEntry=(APP.seniority[String(grade)]||[]).find(p=>p.sno===sno);
+  const subject=personEntry&&personEntry.subject?personEntry.subject:'Unspecified';
+  let h='<div class="person-result"><div class="person-info">';
+  h+='<div class="person-name">'+esc(tp.name)+'</div>';
+  h+='<div class="person-chips">';
+  h+='<span class="chip grade">BS-'+grade+'</span>';
+  h+='<span class="chip">S.No&nbsp;'+sno+'</span>';
+  h+='<span class="chip">Subject&nbsp;'+esc(subject)+'</span>';
+  h+='<span class="chip">DOB&nbsp;&nbsp;'+fmtDate(tp.dob)+'</span>';
+  h+='<span class="chip">Retires&nbsp;'+fmtDate(ownRetire)+'</span>';
+  h+='</div></div></div>';
+
+  // timeline
+  h+='<div class="timeline-wrap"><div class="timeline-track">';
+  // current rank = 1-based position in the original grade's seniority list
+  const currentRank=(APP.seniority[String(grade)]||[]).findIndex(p=>p.sno===sno)+1||null;
+  const steps=buildSteps(grade,ownRetire,result,T0,retiredFirst,sno,currentRank,finalRank,finalGrade);
+  steps.forEach((s,i)=>{
+    const last=i===steps.length-1;
+    h+='<div class="tl-row">';
+    h+='<div class="tl-spine"><div class="tl-node '+s.nodeClass+'">'+s.icon+'</div>';
+    h+='<div class="tl-wire'+(last?' hidden':'')+'"></div></div>';
+    h+='<div class="tl-content">';
+    h+='<div class="tl-eyebrow">'+s.eyebrow+'</div>';
+    h+='<div class="tl-main-date'+(s.dateClass?' '+s.dateClass:'')+'">'+s.dateStr+'</div>';
+    if(s.sub)h+='<div class="tl-sub">'+s.sub+'</div>';
+    if(s.badge)h+='<span class="tl-badge '+s.badgeClass+'">'+s.badge+'</span>';
+    h+='</div></div>';
+  });
+  h+='</div></div>';
+
+  // log
+  h+='<button class="log-toggle-btn" onclick="toggleLog(this)"><span class="log-chevron">&#9654;</span><span>Show simulation log</span></button>';
+  h+='<div class="log-box"><div class="log-body">'+renderLog(log)+'</div></div>';
+  return h;
+}
+
+function buildSteps(grade,ownRetire,result,T0,retiredFirst,sno,currentRank,finalRank,finalGrade){
+  const steps=[];
+  steps.push({nodeClass:'origin',icon:'&#9679;',eyebrow:'Current Position',dateStr:'BS-'+grade,sub:'S.No '+sno+' &nbsp;|&nbsp; As of '+fmtDate(T0),badge:'Active',badgeClass:'current'});
+
+  // Stage numbers are fixed positions in the full ladder (17\u219218=Stage1,
+  // 18\u219219=Stage2, 19\u219220=Stage3), so a BS-19 starter still sees "Stage 3"
+  // for their one relevant step, consistent with how a person's place in the
+  // overall promotion chain is labeled regardless of where they start.
+  const ALL_STEPS=GRADES.slice(0,-1).map((g,i)=>[g,GRADES[i+1]]);
+  const relevantSteps=ALL_STEPS.filter(([a])=>a>=grade);
+
+  relevantSteps.forEach(([a,b])=>{
+    const stageNum=ALL_STEPS.findIndex(s=>s[0]===a)+1;
+    const key='BS'+a+'_to_BS'+b, rankKey=key+'_rank';
+    const isFinal=(b===TOP_GRADE);
+    const eyebrow='Stage '+stageNum+' \u2014 BS-'+a+' \u2192 BS-'+b;
+    const sVal=result[key];
+    if(sVal){
+      const late=sVal>ownRetire;
+      const day0promo=sVal.getTime()===T0.getTime();
+      const rankSub=result[rankKey]?' &nbsp;|&nbsp; New Seniority #'+result[rankKey]+' in BS-'+b:'';
+      let day0note='';
+      if(day0promo){
+        // Board terminology is only confirmed for the original 18\u219219 / 19\u219220
+        // steps; any newly-added lower step uses a generic "promotion is due" note
+        // until the correct board name for it is confirmed.
+        if(a===18&&b===19)day0note=' &nbsp;&mdash;&nbsp; <span style="color:var(--amber,#d97706);font-weight:600;">Promotion is due &mdash; Will be promoted in Next Board&nbsp;II</span>';
+        else if(a===19&&b===20)day0note=' &nbsp;&mdash;&nbsp; <span style="color:var(--amber,#d97706);font-weight:600;">Promotion is due &mdash; Will be promoted in Next Board&nbsp;I</span>';
+        else day0note=' &nbsp;&mdash;&nbsp; <span style="color:var(--amber,#d97706);font-weight:600;">Promotion is due</span>';
+      }
+      const subLine=day0promo?'Promoted on Day 0 (Today)'+rankSub+day0note:yearsFrom(T0,sVal)+' years from now'+rankSub;
+      steps.push({nodeClass:late?'miss':(isFinal?'peak':'promo'),icon:isFinal?'\u2605':'&#9650;',eyebrow,dateStr:fmtDate(sVal),dateClass:isFinal?'gold':'green',sub:subLine,badge:late?'After Retirement':day0promo?'Promoted — Due Now':'Promoted',badgeClass:late?'missed':(isFinal?'gold':'promoted')});
+    } else {
+      const curGradeLabel=finalGrade||grade;
+      const curRank=(retiredFirst&&finalRank)?finalRank:currentRank;
+      const missRankNote=curRank?' &nbsp;|&nbsp; BS-'+curGradeLabel+' Seniority #'+curRank+(retiredFirst?' at retirement':' (current)'):'';
+      steps.push({nodeClass:'miss',icon:'\u2715',eyebrow,dateStr:'Not reached',sub:(retiredFirst?'Retired before promotion':'Beyond 40-year horizon')+missRankNote,badge:retiredFirst?'Retired':'Horizon',badgeClass:'missed'});
+    }
+  });
+
+  if(grade===TOP_GRADE) steps.push({nodeClass:'peak',icon:'\u2605',eyebrow:'Already at Highest Grade',dateStr:'BS-'+TOP_GRADE,sub:'Retirement: '+fmtDate(ownRetire),badge:null,badgeClass:''});
+
+  // Show rank at the moment of retirement (before the retirement node), only when person retired without reaching the top grade
+  if(retiredFirst&&finalRank&&finalGrade&&grade!==TOP_GRADE){
+    steps.push({nodeClass:'origin',icon:'&#9670;',eyebrow:'Rank at Retirement',dateStr:'BS-'+finalGrade+' &nbsp;\u2014&nbsp; Seniority #'+finalRank,sub:'Position held on retirement date &nbsp;'+fmtDate(ownRetire),badge:null,badgeClass:'',rankNode:true});
+  }
+
+  steps.push({nodeClass:'retire',icon:'&#9675;',eyebrow:'Retirement',dateStr:fmtDate(ownRetire),sub:yearsFrom(T0,ownRetire)+' years from now',badge:null,badgeClass:''});
+  return steps;
+}
+
+function renderLog(log){
+  let html='';
+  for(const l of log){
+    if(l.t==='sep')continue; // ASCII rule lines — replaced by the day-row's own border
+    const raw=l.x;
+    if(l.t==='day'){
+      html+='<div class="log-day-row">'+esc(raw)+'</div>';
+      continue;
+    }
+    if(raw===''){
+      html+='<div class="log-spacer"></div>';
+      continue;
+    }
+    if(l.t==='promo'){
+      const clean=raw.replace(/\*/g,'').trim();
+      html+='<div class="log-promo-row">'+esc(clean)+'</div>';
+      continue;
+    }
+    const indent=(raw.match(/^ */)||[''])[0].length;
+    const level=indent>=8?2:(indent>=2?1:0);
+    const text=esc(raw.trim()).replace(/ {2,}/g,m=>'<span class="log-gap"></span>'.repeat(1));
+    html+='<div class="log-line indent-'+level+'">'+text+'</div>';
+  }
+  return html;
+}
+
+// ── TOP MENU ───────────────────────────────────────
+function toggleTopMenu(force){
+  const btn=document.getElementById('topMenuBtn');
+  const dd=document.getElementById('topMenuDropdown');
+  const overlay=document.getElementById('menuOverlay');
+  const open=(typeof force==='boolean')?force:!dd.classList.contains('open');
+  dd.classList.toggle('open',open);
+  btn.classList.toggle('open',open);
+  if(overlay)overlay.classList.toggle('open',open);
+  // Prevent body scroll when sidebar open
+  document.body.style.overflow=open?'hidden':'';
+}
+function closeTopMenu(){
+  toggleTopMenu(false);
+}
+function setMenuItemActive(key,active){
+  const item=document.querySelector('.menu-item[data-key="'+key+'"]');
+  if(item)item.classList.toggle('active',active);
+}
+function closeAllPanelsExcept(keep){
+  if(keep!=='seats'){
+    const p=document.getElementById('seatsPanel');
+    if(p.classList.contains('open')){p.classList.remove('open');setMenuItemActive('seats',false);}
+  }
+  if(keep!=='upload'){
+    const p=document.getElementById('uploadPanel');
+    if(p.classList.contains('open')){p.classList.remove('open');setMenuItemActive('upload',false);}
+  }
+  if(keep!=='method'){
+    const box=document.getElementById('methodInfoBox');
+    if(box.classList.contains('open')){box.classList.remove('open');setMenuItemActive('method',false);}
+  }
+  if(keep!=='seniority'){
+    const p=document.getElementById('seniorityPanel');
+    if(p.classList.contains('open')){p.classList.remove('open');setMenuItemActive('seniority',false);}
+  }
+}
+function menuAction(which){
+  toggleTopMenu(false);
+  closeAllPanelsExcept(which);
+  if(which==='seats')toggleSeatsPanel();
+  else if(which==='upload')toggleUploadPanel();
+  else if(which==='method')toggleMethodInfo();
+  else if(which==='seniority')toggleSeniorityPanel();
+}
+// Close sidebar on Escape key
+document.addEventListener('keydown',(e)=>{
+  if(e.key==='Escape')closeTopMenu();
+});
+
+function toggleMethodInfo(){
+  const box=document.getElementById('methodInfoBox');
+  const open=box.classList.toggle('open');
+  setMenuItemActive('method',open);
+  if(open)box.scrollIntoView({block:'start',behavior:'smooth'});
+}
+
+function toggleLog(btn){
+  const box=btn.nextElementSibling;
+  const chev=btn.querySelector('.log-chevron');
+  const lbl=btn.querySelector('span:last-child');
+  box.classList.toggle('open');
+  chev.classList.toggle('open');
+  lbl.textContent=box.classList.contains('open')?'Hide simulation log':'Show simulation log';
+}
+
+// ── RETIREMENT CALENDAR ────────────────────────────
+let activeFilter='all';
+
+function setFilter(f,btn){
+  activeFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCalendar();
+}
+
+function countClass(n){
+  if(n===0)return'zero';
+  if(n<=2)return'low';
+  if(n<=5)return'mid';
+  return'high';
+}
+
+function renderCalendar(){
+  const tbody=document.getElementById('calBody');
+  const months=APP.monthly||{};
+  const hasData=Object.keys(months).length>0;
+
+  if(!hasData){
+    tbody.innerHTML=`<tr><td colspan="${GRADES.length+3}" class="cal-empty-msg">
+      Run a forecast above to build the month-wise retirement calendar \u2014
+      it covers the same span that forecast's simulation runs (Day 0 through
+      the date it resolves), tallied by the grade each person holds at retirement.
+    </td></tr>`;
+    return;
+  }
+
+  let totalRow={}; for(const g of GRADES) totalRow[g]=0;
+  const rows=[];
+
+  for(const[key,data]of Object.entries(months)){
+    const n={}; for(const g of GRADES) n[g]=(data[String(g)]||[]).length;
+    const total=GRADES.reduce((s,g)=>s+n[g],0);
+    if(total===0)continue;
+
+    let names=[];
+    for(const g of GRADES_DESC) if(activeFilter==='all'||activeFilter===String(g))
+      (data[String(g)]||[]).forEach(p=>names.push({g,name:p.name,sno:p.sno,date:p.date}));
+
+    const filterCount=names.length;
+    if(activeFilter!=='all'&&filterCount===0)continue;
+
+    for(const g of GRADES) totalRow[g]+=n[g];
+
+    const{mo,y}=fmtMonthLabel(key);
+    // Build grade-grouped name display: highest grade first, down to lowest.
+    // Each grade on its own line with a colored label; names wrap and indent naturally
+    const gradeOrder = activeFilter==='all' ? GRADES_DESC : [parseInt(activeFilter)];
+    const nameHtml = gradeOrder.map(g => {
+      const grp = (data[String(g)]||[]);
+      if(!grp.length) return '';
+      const labelClass = 'cal-grade-label g'+g;
+      const nameSpans = grp.map(p =>
+        '<span class="name-entry">'+esc(p.name)+' <span class="sno-tag">#'+p.sno+'</span>,</span>'
+      ).join(' ');
+      // remove trailing comma from last entry
+      const nameSpansCleaned = nameSpans.replace(/,(<\/span>)\s*$/, '$1');
+      return '<div class="cal-grade-group">'+
+               '<span class="'+labelClass+'">BS-'+g+'</span>'+
+               '<span class="cal-grade-names">'+nameSpansCleaned+'</span>'+
+             '</div>';
+    }).join('');
+
+    rows.push(`<tr>
+      <td class="cal-month-cell"><strong>${mo}</strong> <span class="yr">${y}</span></td>
+      ${GRADES_DESC.map(g=>`<td class="cal-count ${countClass(n[g])}">${n[g]||'—'}</td>`).join('')}
+      <td class="cal-total-cell">${total}</td>
+      <td class="cal-names">${nameHtml}</td>
+    </tr>`);
+  }
+
+  const grand=GRADES.reduce((s,g)=>s+totalRow[g],0);
+  rows.push(`<tr class="total-row">
+    <td class="cal-month-cell">TOTAL</td>
+    ${GRADES_DESC.map(g=>`<td class="cal-count">${totalRow[g]}</td>`).join('')}
+    <td class="cal-total-cell">${grand}</td>
+    <td class="cal-names" style="color:var(--ink-3);font-size:11px">Retirements over the last-run forecast's simulated span</td>
+  </tr>`);
+
+  tbody.innerHTML=rows.join('');
+}
+
+// ── SANCTIONED SEATS EDIT ────────────────────────────
+function toggleSeatsPanel(){
+  const panel=document.getElementById('seatsPanel');
+  const open=panel.classList.toggle('open');
+  setMenuItemActive('seats',open);
+  if(open){
+    for(const g of GRADES) document.getElementById('seatsInput'+g).value=APP.sanctioned[g];
+    document.getElementById('seatsStatus').textContent='';
+    document.getElementById('seatsStatus').className='upload-status';
+    panel.scrollIntoView({block:'start',behavior:'smooth'});
+  }
+}
+
+function setSeatsStatus(msg,kind){
+  const el=document.getElementById('seatsStatus');
+  el.textContent=msg;
+  el.className='upload-status'+(kind?' '+kind:'');
+}
+
+function saveSanctionedSeats(){
+  const next={};
+  for(const g of GRADES){
+    const n=parseInt(document.getElementById('seatsInput'+g).value,10);
+    if(isNaN(n)||n<0){
+      setSeatsStatus('Enter a whole number \u2265 0 for BS-'+g+'.','error');
+      return;
+    }
+    if(n<APP.filled[g]){
+      setSeatsStatus('BS-'+g+' seats ('+n+') can\u2019t be less than the current filled count ('+APP.filled[g]+').','error');
+      return;
+    }
+    next[g]=n;
+  }
+  APP.sanctioned=next;
+  APP.monthly={}; // stale until the next forecast re-derives it under the new seat counts
+  renderStats();
+  const area=document.getElementById('resultArea');
+  area.className='result-area';
+  area.innerHTML='';
+  document.getElementById('snoInput').value='';
+  renderCalendar();
+  setSeatsStatus('\u2713 Saved \u2014 '+GRADES_DESC.map(g=>'BS-'+g+': '+next[g]).join(', ')+'. Re-run a forecast to see the effect (also rebuilds the retirement calendar below).','success');
+}
+
+// ── FRESH DATA UPLOAD ────────────────────────────────
+function toggleUploadPanel(){
+  const panel=document.getElementById('uploadPanel');
+  const open=panel.classList.toggle('open');
+  setMenuItemActive('upload',open);
+  if(open)panel.scrollIntoView({block:'start',behavior:'smooth'});
+}
+
+function setUploadStatus(msg,kind){
+  const el=document.getElementById('uploadStatus');
+  el.textContent=msg;
+  el.className='upload-status'+(kind?' '+kind:'');
+}
+
+function pad2(n){n=parseInt(n,10);return n<10?'0'+n:String(n);}
+
+function isoFromJsDate(d){
+  return d.getUTCFullYear()+'-'+pad2(d.getUTCMonth()+1)+'-'+pad2(d.getUTCDate());
+}
+
+// Accepts a JS Date, an Excel serial number, or a string, and returns 'YYYY-MM-DD' or null.
+function excelValueToISODate(v){
+  if(v===null||v===undefined||v==='')return null;
+  if(v instanceof Date && !isNaN(v.getTime()))return isoFromJsDate(v);
+  if(typeof v==='number'&&isFinite(v)){
+    // Excel serial date (1899-12-30 epoch), date part only.
+    const ms=Math.round((v-25569)*86400000);
+    const d=new Date(ms);
+    if(!isNaN(d.getTime()))return isoFromJsDate(d);
+    return null;
+  }
+  if(typeof v==='string'){
+    const s=v.trim();
+    let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if(m)return m[1]+'-'+pad2(m[2])+'-'+pad2(m[3]);
+    m=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+    if(m){
+      let a=parseInt(m[1],10),b=parseInt(m[2],10),y=m[3];
+      // if first part can't be a month, treat as day/month/year
+      if(a>12)return y+'-'+pad2(b)+'-'+pad2(a);
+      return y+'-'+pad2(a)+'-'+pad2(b);
+    }
+    const d=new Date(s);
+    if(!isNaN(d.getTime()))return isoFromJsDate(d);
+  }
+  return null;
+}
+
+function parseFreshWorkbook(wb){
+  const sheetForGrade={20:'BS-20',19:'BS-19',18:'BS-18',17:'BS-17'};
+  const seniority={},filled={},warnings=[];
+  for(const g of GRADES_DESC){
+    const sheetName=sheetForGrade[g];
+    const ws=wb.Sheets[sheetName];
+    if(!ws){warnings.push('Sheet "'+sheetName+'" not found.');seniority[String(g)]=[];filled[g]=0;continue;}
+    const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null});
+    const arr=[];
+    for(let i=1;i<rows.length;i++){
+      const r=rows[i];
+      if(!r)continue;
+      const snoRaw=r[0],nameRaw=r[1],dobRaw=r[2],subjectRaw=r[3];
+      if(snoRaw===null||snoRaw===undefined||nameRaw===null||nameRaw===undefined||dobRaw===null||dobRaw===undefined)continue;
+      const sno=parseInt(snoRaw,10);
+      if(isNaN(sno))continue;
+      const name=String(nameRaw).trim();
+      if(!name)continue;
+      const dob=excelValueToISODate(dobRaw);
+      if(!dob)continue;
+      // Subject is metadata only — never gates promotion logic. Blank/missing
+      // values fall back to "Unspecified" rather than being dropped, so a
+      // row with no subject still counts toward grade strength/simulation.
+      const subject=(subjectRaw===null||subjectRaw===undefined||String(subjectRaw).trim()==='')?'Unspecified':String(subjectRaw).trim();
+      arr.push({sno,name,dob,subject});
+    }
+    arr.sort((a,b)=>a.sno-b.sno);
+    seniority[String(g)]=arr;
+    filled[g]=arr.length;
+  }
+  const total=GRADES.reduce((s,g)=>s+filled[g],0);
+  if(total===0){
+    throw new Error('No usable rows found. '+(warnings.length?warnings.join(' '):'Check that sheets are named BS-17 / BS-18 / BS-19 / BS-20 with S.NO., Name of Professor, D.O.B. columns.'));
+  }
+
+  // Optional "Sanctioned Seats" sheet: header row with BS-17/BS-18/BS-19/BS-20
+  // (case-insensitive, tolerant of stray whitespace/typos like "Bs-19"), and
+  // the very next row holding the seat counts.
+  let sanctioned=null;
+  const seatsWs=wb.Sheets['Sanctioned Seats'];
+  if(seatsWs){
+    const seatRows=XLSX.utils.sheet_to_json(seatsWs,{header:1,raw:true,defval:null});
+    const headerRow=seatRows[0]||[];
+    const valueRow=seatRows[1]||[];
+    const colForGrade={};
+    headerRow.forEach((h,idx)=>{
+      if(h===null||h===undefined)return;
+      const m=String(h).trim().match(/^BS-?\s*(\d{2})$/i);
+      if(m)colForGrade[parseInt(m[1],10)]=idx;
+    });
+    const found={};
+    let ok=true;
+    for(const g of GRADES){
+      const idx=colForGrade[g];
+      const raw=(idx!==undefined)?valueRow[idx]:null;
+      const n=parseInt(raw,10);
+      if(idx===undefined||isNaN(n)){ok=false;continue;}
+      found[g]=n;
+    }
+    if(ok){
+      sanctioned=found;
+    }else{
+      warnings.push('"Sanctioned Seats" sheet found but could not read all four BS-17/18/19/20 values \u2014 sanctioned seats left unchanged.');
+    }
+  }else{
+    warnings.push('No "Sanctioned Seats" sheet found \u2014 sanctioned seats left unchanged.');
+  }
+
+  return{seniority,filled,sanctioned,warnings};
+}
+
+function buildMonthlyFromSimulation(seniority,uptoDate){
+  // Full-roster day-by-day cascade, run for exactly the same span the forecast
+  // simulation covered (T0 .. uptoDate) — not a fixed window. Each day's
+  // retirements are tallied under the grade the person actually held at that
+  // moment (post-cascade-so-far), and rolled up into month totals per grade —
+  // e.g. Aug: 28th=3(BS-19), 29th=0, 30th=0, 31st=2(BS-19) → Aug BS-19 tally=5.
+  const T0=simToday();
+  function mk(p,og){const dob=parseDate(p.dob);return{id:og+'_'+p.sno,name:p.name,sno:p.sno,dob,retire:retireDate(p.dob)};}
+  const lists={};
+  for(const g of GRADES){
+    lists[g]=(seniority[String(g)]||[]).map(p=>mk(p,g)).sort((a,b)=>a.sno-b.sno);
+  }
+
+  const buckets={};
+  function record(p,grade,rd){
+    const key=rd.getUTCFullYear()+'-'+pad2(rd.getUTCMonth()+1);
+    if(!buckets[key]){buckets[key]={};for(const g of GRADES)buckets[key][g]=[];}
+    buckets[key][String(grade)].push({name:p.name,sno:p.sno,date:isoFromJsDate(rd)});
+  }
+
+  function cascade(v){
+    for(const g of GRADES_DESC){
+      const below=g-1;
+      if(!lists[below])continue; // bottom grade — no feeder
+      const vg=v[g]||0;
+      if(vg<=0)continue;
+      const n=Math.min(vg,lists[below].length);
+      const pr=lists[below].splice(0,n);
+      for(const p of pr)lists[g].push(p);
+      v[below]=(v[below]||0)+pr.length;
+    }
+  }
+
+  // Day 0: remove already-retired (not tallied — before the window), cascade-fill.
+  const v0={};
+  for(const g of GRADES_DESC){
+    const st=SANCTIONED[g]-lists[g].length;
+    const ar=lists[g].filter(p=>p.retire<=T0);
+    lists[g]=lists[g].filter(p=>p.retire>T0);
+    v0[g]=st+ar.length;
+  }
+  cascade(v0);
+
+  if(!uptoDate||uptoDate.getTime()<=T0.getTime())return{}; // nothing to tally yet
+
+  // Forward day-by-day, same mechanics as runSimulation()'s loop, but for every
+  // grade's roster at once and stopping exactly at uptoDate.
+  while(true){
+    let nxt=null;
+    for(const g of GRADES)for(const p of lists[g]){const t=p.retire.getTime();if(t>T0.getTime()&&t<=uptoDate.getTime()&&(nxt===null||t<nxt))nxt=t;}
+    if(nxt===null)break;
+    const dObj=new Date(nxt);
+    const vb={};
+    for(const g of GRADES){
+      const rl=lists[g].filter(p=>p.retire.getTime()===nxt);
+      if(rl.length){
+        for(const p of rl)record(p,g,dObj);
+        lists[g]=lists[g].filter(p=>p.retire.getTime()!==nxt);
+      }
+    }
+    for(const g of GRADES)vb[g]=Math.max(0,SANCTIONED[g]-lists[g].length);
+    cascade(vb);
+  }
+
+  const sortedKeys=Object.keys(buckets).sort();
+  const monthly={};
+  for(const k of sortedKeys){
+    for(const g of GRADES)buckets[k][String(g)].sort((a,b)=>a.date.localeCompare(b.date));
+    monthly[k]=buckets[k];
+  }
+  return monthly;
+}
+
+function refreshAllData(seniority,filled,sanctioned){
+  APP.seniority=seniority;
+  const nf={}; for(const g of GRADES) nf[String(g)]=filled[g]; APP.filled=nf;
+  if(sanctioned){
+    const ns={}; for(const g of GRADES) ns[g]=sanctioned[g];
+    APP.sanctioned=ns;
+  }
+  APP.monthly={}; // cleared — calendar is (re)built when a forecast is run, see doPredict()
+  renderStats();
+  activeFilter='all';
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  const allBtn=document.querySelector('.filter-btn');
+  if(allBtn)allBtn.classList.add('active');
+  renderCalendar();
+  const area=document.getElementById('resultArea');
+  area.className='result-area';
+  area.innerHTML='';
+  document.getElementById('snoInput').value='';
+  // Re-run Roster Outcome with fresh data
+  runRosterOutcomeSimulation();
+  renderOutcomeCards();
+  // Subject Analysis — metadata-only views, safe to (re)render any time
+  // APP.seniority changes, independent of the promotion simulation.
+  renderSubjectStrength();
+  renderSubjectRetirementOutlook();
+}
+
+function handleFreshDataFile(evt){
+  const file=evt.target.files&&evt.target.files[0];
+  if(!file)return;
+  setUploadStatus('Reading '+file.name+'\u2026','loading');
+  const reader=new FileReader();
+  reader.onerror=()=>setUploadStatus('Could not read the file.','error');
+  reader.onload=(e)=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array',cellDates:true});
+      const{seniority,filled,sanctioned,warnings}=parseFreshWorkbook(wb);
+      refreshAllData(seniority,filled,sanctioned);
+      const total=GRADES.reduce((s,g)=>s+filled[g],0);
+      let msg='\u2713 Loaded fresh data \u2014 '+GRADES_DESC.map(g=>'BS-'+g+': '+filled[g]).join(', ')+' (total '+total+').';
+      if(sanctioned)msg+=' Sanctioned seats updated: '+GRADES_DESC.map(g=>'BS-'+g+': '+sanctioned[g]).join(', ')+'.';
+      if(warnings.length)msg+=' Note: '+warnings.join(' ');
+      setUploadStatus(msg,warnings.length?'error':'success');
+    }catch(err){
+      setUploadStatus('Error: '+err.message,'error');
+    }
+  };
+  reader.readAsArrayBuffer(file);
+  evt.target.value='';
+}
+
+// ── ROSTER OUTCOME SIMULATION (independent — reads APP.seniority, never writes to it) ──
+let ROSTER_OUTCOME = null;
+
+function runRosterOutcomeSimulation(){
+  // Deep-copy all grade lists — never touch APP.seniority originals
+  const lists = {};
+  for(const g of GRADES){
+    lists[g] = (APP.seniority[String(g)]||[]).map(p=>{
+      const dob = parseDate(p.dob);
+      return { id: g+'_'+p.sno, sno: p.sno, name: p.name, dob, retire: retireDate(p.dob), originGrade: g, currentGrade: g };
+    }).sort((a,b)=>a.sno-b.sno);
+  }
+
+  // Mark which persons we want to track (every grade below the top — being
+  // already at the top means there's no "outcome" question to ask)
+  const ORIGIN_GRADES = GRADES.slice(0,-1);
+  const tracked = {};
+  for(const g of ORIGIN_GRADES){
+    for(const p of lists[g]) tracked[p.id] = { sno:p.sno, name:p.name, originGrade:g, currentGrade:g, retireDate:null };
+  }
+
+  const T0 = simToday();
+
+  // Cascade helper — mirrors runSimulation()'s cascade exactly, top-down.
+  function cascade(){
+    for(const g of GRADES_DESC){
+      const below = g-1;
+      if(!lists[below]) continue; // bottom grade — no feeder
+      const vg = Math.max(0, SANCTIONED[g] - lists[g].length);
+      if(vg<=0) continue;
+      const n = Math.min(vg, lists[below].length);
+      const promoted = lists[below].splice(0, n);
+      for(const p of promoted){
+        p.currentGrade = g;
+        lists[g].push(p);
+        if(tracked[p.id]) tracked[p.id].currentGrade = g;
+      }
+    }
+  }
+
+  // Day-0: remove already-retired, calculate structural vacancies, cascade
+  for(const g of GRADES_DESC){
+    const alreadyRetired = lists[g].filter(p => p.retire <= T0);
+    lists[g] = lists[g].filter(p => p.retire > T0);
+    // Mark tracked persons who were already retired
+    for(const p of alreadyRetired){
+      if(tracked[p.id]){ tracked[p.id].retireDate = p.retire; tracked[p.id].finalGrade = p.currentGrade; }
+    }
+  }
+  cascade();
+
+  // Horizon = latest retirement date across ALL persons in all grades
+  let horizon = T0;
+  for(const g of GRADES)
+    for(const p of lists[g])
+      if(p.retire.getTime() > horizon.getTime()) horizon = p.retire;
+
+  // Forward loop: jump to each retirement event
+  while(true){
+    let nxt = null;
+    for(const g of GRADES)
+      for(const p of lists[g]){
+        const t = p.retire.getTime();
+        if(t > T0.getTime() && t <= horizon.getTime() && (nxt===null || t < nxt)) nxt = t;
+      }
+    if(nxt===null) break;
+
+    // Remove retirees from their current grade list
+    for(const g of GRADES){
+      const retiring = lists[g].filter(p => p.retire.getTime() === nxt);
+      if(retiring.length){
+        lists[g] = lists[g].filter(p => p.retire.getTime() !== nxt);
+        for(const p of retiring){
+          if(tracked[p.id]){
+            tracked[p.id].retireDate = p.retire;
+            tracked[p.id].finalGrade = p.currentGrade; // grade held at time of retirement
+          }
+        }
+      }
+    }
+    cascade();
+  }
+
+  // Any tracked person still in a list (hasn't retired yet within horizon) —
+  // give them their current grade as final outcome
+  for(const g of GRADES)
+    for(const p of lists[g])
+      if(tracked[p.id] && !tracked[p.id].finalGrade)
+        tracked[p.id].finalGrade = p.currentGrade;
+
+  // Tally results — one bucket set per origin grade. Each origin g can land
+  // on reachTop, or retireAt<x> for every grade from g up to (TOP_GRADE-1).
+  const outcomes = {};
+  for(const g of ORIGIN_GRADES){
+    const possibleFinal = GRADES.filter(x=>x>=g); // e.g. origin 17 -> [17,18,19,20]
+    const o = { total: (APP.seniority[String(g)]||[]).length, reachBS20:[] };
+    for(const f of possibleFinal) if(f!==TOP_GRADE) o['retireAtBS'+f] = [];
+    outcomes[g] = o;
+  }
+
+  for(const id of Object.keys(tracked)){
+    const t = tracked[id];
+    const rd = t.retireDate ? fmtDate(t.retireDate) : '—';
+    const entry = { sno: t.sno, name: t.name, retireDateStr: rd };
+    const o = outcomes[t.originGrade];
+    if(t.finalGrade === TOP_GRADE) o.reachBS20.push(entry);
+    else o['retireAtBS'+t.finalGrade].push(entry);
+  }
+
+  // Sort every bucket by sno
+  const bySno = (a,b) => a.sno - b.sno;
+  for(const g of ORIGIN_GRADES){
+    const o = outcomes[g];
+    for(const k of Object.keys(o)) if(Array.isArray(o[k])) o[k].sort(bySno);
+  }
+
+  ROSTER_OUTCOME = { outcomes, originGrades: ORIGIN_GRADES };
+}
+
+function renderOutcomeCards(){
+  const grid = document.getElementById('outcomeGrid');
+  if(!ROSTER_OUTCOME){ grid.innerHTML='<div class="oc-placeholder">No data yet — click Re-run Analysis.</div>'; return; }
+  const { outcomes, originGrades } = ROSTER_OUTCOME;
+
+  function nameListHtml(bucket, colorClass){
+    return bucket.map(p=>
+      `<div class="oc-name-row">
+        <span class="oc-name-sno">#${p.sno}</span>
+        <span class="oc-name-name">${esc(p.name)}</span>
+        <span class="oc-name-date">${p.retireDateStr}</span>
+      </div>`
+    ).join('');
+  }
+
+  function bucketToggle(id, label, colorClass, count, bucket){
+    const listId = 'oc-list-'+id;
+    const chevId = 'oc-chev-'+id;
+    return `<button class="oc-bucket-toggle ${colorClass}" onclick="(function(){
+      var el=document.getElementById('${listId}'),ch=document.getElementById('${chevId}');
+      var open=el.classList.toggle('open');
+      ch.classList.toggle('open',open);
+    })()" type="button">
+      <span>&#9654; ${label} &nbsp;<span style="font-size:11px;font-weight:400;">(${count} persons)</span></span>
+      <span class="oc-chev" id="${chevId}">&#9654;</span>
+    </button>
+    <div class="oc-name-list" id="${listId}">${nameListHtml(bucket, colorClass)}</div>`;
+  }
+
+  function card(gradeLabel, stats, buckets){
+    return `<div class="oc-card">
+      <div class="oc-card-header">
+        <span class="oc-card-label">${gradeLabel}</span>
+        <span class="oc-card-sublabel">Outcome Summary</span>
+      </div>
+      <div class="oc-card-body">
+        ${stats.map(s=>`<div class="oc-stat-row">
+          <span class="oc-stat-label">${s.label}</span>
+          <span class="oc-stat-value ${s.cls||''}">${s.val}</span>
+        </div>`).join('')}
+      </div>
+      <div class="oc-buckets">
+        ${buckets}
+      </div>
+    </div>`;
+  }
+
+  // One card per origin grade (17, 18, 19 — not the top grade, which has no
+  // "outcome" to project). Red = retires without ever being promoted (stuck
+  // at the origin grade); gold = retires after at least one promotion but
+  // before reaching the top; green = reaches the top grade.
+  const cards = originGrades.map(g=>{
+    const o = outcomes[g];
+    const retireKeys = Object.keys(o).filter(k=>k.startsWith('retireAtBS')).sort((a,b)=>{
+      // sort descending by grade number, e.g. retireAtBS19 before retireAtBS18
+      const ga=parseInt(a.replace('retireAtBS','')), gb=parseInt(b.replace('retireAtBS',''));
+      return gb-ga;
+    });
+    const stats=[{ label:'Total in Seniority List', val:o.total },
+                 { label:'Will Reach BS-'+TOP_GRADE, val:o.reachBS20.length, cls:'green' }];
+    let buckets = bucketToggle(g+'-'+TOP_GRADE,'Will Reach BS-'+TOP_GRADE,'green',o.reachBS20.length,o.reachBS20);
+    for(const k of retireKeys){
+      const f = parseInt(k.replace('retireAtBS',''));
+      const cls = (f===g) ? 'red' : 'gold';
+      const label = 'Will Retire at BS-'+f;
+      stats.push({ label, val:o[k].length, cls });
+      buckets += bucketToggle(g+'-'+f, label, cls, o[k].length, o[k]);
+    }
+    return card('BS-'+g, stats, buckets);
+  });
+
+  grid.innerHTML = cards.join('');
+}
+
+// ── SUBJECT ANALYSIS (metadata-only — never affects the promotion cascade) ──
+// Both functions below read directly from APP.seniority, so they automatically
+// reflect whichever gender list is currently active (loaded via Google Drive,
+// manual upload, or switchGenderList()) — same data source as everything else.
+
+// Subject Strength Matrix: one row per subject, one column per grade, counting
+// only people who have NOT yet reached their retirement date as of today
+// (retireDate > T0) — same Day-0 "currently active" rule the simulation uses
+// to decide who's still in the roster before any cascade runs. Someone
+// retiring in 3 months still counts today; someone already past retirement
+// does not.
+// Subject names are matched case/whitespace-insensitively so "Physics",
+// "physics", and " Physics " all group into one row. The first-seen casing
+// (in seniority-number order) is kept as the display label.
+function subjectKey(s){ return String(s||'Unspecified').trim().toLowerCase(); }
+
+function renderSubjectStrength(){
+  const wrap=document.getElementById('subjectStrengthWrap');
+  if(!wrap)return;
+  const T0=simToday();
+  const bySubject={}; // normalizedKey -> {label, counts:{20:n,19:n,18:n,17:n}}
+  for(const g of GRADES){
+    const list=APP.seniority[String(g)]||[];
+    for(const p of list){
+      if(retireDate(p.dob)<=T0)continue; // already retired — excluded from current strength
+      const rawSubj=p.subject||'Unspecified';
+      const key=subjectKey(rawSubj);
+      if(!bySubject[key]){
+        bySubject[key]={label:rawSubj.trim()||'Unspecified',counts:{}};
+        for(const gg of GRADES)bySubject[key].counts[gg]=0;
+      }
+      bySubject[key].counts[g]++;
+    }
+  }
+  const keys=Object.keys(bySubject);
+  if(keys.length===0){
+    wrap.innerHTML='<div class="oc-placeholder">No subject data available in the current list.</div>';
+    return;
+  }
+  // Sort by total headcount descending — with 35+ subjects, surfacing the
+  // largest first is more useful than alphabetical.
+  const rows=keys.map(k=>{
+    const{label,counts}=bySubject[k];
+    const total=GRADES.reduce((sum,g)=>sum+counts[g],0);
+    return{subject:label,counts,total};
+  }).sort((a,b)=>b.total-a.total);
+
+  const grandTotal={}; for(const g of GRADES) grandTotal[g]=0;
+  let grandAll=0;
+  for(const r of rows){for(const g of GRADES)grandTotal[g]+=r.counts[g];grandAll+=r.total;}
+
+  let html='<div class="subject-table-scroll"><table class="subject-table"><thead><tr>';
+  html+='<th>Subject</th>';
+  for(const g of GRADES_DESC) html+='<th class="num">BS-'+g+'</th>';
+  html+='<th class="num">Total</th></tr></thead><tbody>';
+  for(const r of rows){
+    html+='<tr><td class="subj-name">'+esc(r.subject)+'</td>';
+    for(const g of GRADES_DESC) html+='<td class="num">'+(r.counts[g]||'—')+'</td>';
+    html+='<td class="num">'+r.total+'</td></tr>';
+  }
+  html+='<tr class="subject-total-row"><td>TOTAL</td>';
+  for(const g of GRADES_DESC) html+='<td class="num">'+grandTotal[g]+'</td>';
+  html+='<td class="num">'+grandAll+'</td></tr>';
+  html+='</tbody></table></div>';
+  wrap.innerHTML=html;
+}
+
+// Subject-wise Retirement Outlook: independent of the promotion cascade —
+// pure DOB+60 math bucketed into cumulative 1/2/3-year forward windows from
+// today (≤2yr always includes everyone already counted in ≤1yr, and so on).
+// Anyone already retired naturally falls outside every window (their
+// retirement date isn't in the future), so no separate exclusion is needed
+// here — unlike the Strength Matrix, which has to actively filter them out.
+function renderSubjectRetirementOutlook(){
+  const wrap=document.getElementById('subjectRetirementWrap');
+  if(!wrap)return;
+  const T0=simToday();
+  const in1=new Date(Date.UTC(T0.getUTCFullYear()+1,T0.getUTCMonth(),T0.getUTCDate()));
+  const in2=new Date(Date.UTC(T0.getUTCFullYear()+2,T0.getUTCMonth(),T0.getUTCDate()));
+  const in3=new Date(Date.UTC(T0.getUTCFullYear()+3,T0.getUTCMonth(),T0.getUTCDate()));
+
+  const bySubject={}; // normalizedKey -> {label, y1,y2,y3,total}
+  for(const g of GRADES){
+    const list=APP.seniority[String(g)]||[];
+    for(const p of list){
+      const rd=retireDate(p.dob);
+      if(rd<=T0)continue; // already retired — not a future retirement, excluded
+      const rawSubj=p.subject||'Unspecified';
+      const key=subjectKey(rawSubj);
+      if(!bySubject[key])bySubject[key]={label:rawSubj.trim()||'Unspecified',y1:0,y2:0,y3:0,total:0};
+      const b=bySubject[key];
+      b.total++;
+      if(rd<=in1)b.y1++;
+      if(rd<=in2)b.y2++; // cumulative — includes everyone already in y1
+      if(rd<=in3)b.y3++; // cumulative — includes everyone already in y1/y2
+    }
+  }
+  const keys=Object.keys(bySubject);
+  if(keys.length===0){
+    wrap.innerHTML='<div class="oc-placeholder">No subject data available in the current list.</div>';
+    return;
+  }
+  // Sort by 3-year urgency descending, then total headcount as tiebreaker.
+  const rows=keys.map(k=>({subject:bySubject[k].label,y1:bySubject[k].y1,y2:bySubject[k].y2,y3:bySubject[k].y3,total:bySubject[k].total}))
+    .sort((a,b)=>b.y3-a.y3||b.total-a.total);
+
+  function urgentClass(n){ return n===0?'urgent-zero':(n<=3?'':'urgent-mid'); }
+
+  const grand={y1:0,y2:0,y3:0,total:0};
+  for(const r of rows){grand.y1+=r.y1;grand.y2+=r.y2;grand.y3+=r.y3;grand.total+=r.total;}
+
+  let html='<div class="subject-table-scroll"><table class="subject-table"><thead><tr>';
+  html+='<th>Subject</th><th class="num">Retiring ≤1yr</th><th class="num">Retiring ≤2yr</th><th class="num">Retiring ≤3yr</th><th class="num">Total Active</th>';
+  html+='</tr></thead><tbody>';
+  for(const r of rows){
+    html+='<tr><td class="subj-name">'+esc(r.subject)+'</td>';
+    html+='<td class="num '+(r.y1>0?'urgent-high':'urgent-zero')+'">'+(r.y1||'—')+'</td>';
+    html+='<td class="num '+(r.y2>0?urgentClass(r.y2):'urgent-zero')+'">'+(r.y2||'—')+'</td>';
+    html+='<td class="num '+(r.y3>0?urgentClass(r.y3):'urgent-zero')+'">'+(r.y3||'—')+'</td>';
+    html+='<td class="num">'+r.total+'</td></tr>';
+  }
+  html+='<tr class="subject-total-row"><td>TOTAL</td>';
+  html+='<td class="num">'+grand.y1+'</td><td class="num">'+grand.y2+'</td><td class="num">'+grand.y3+'</td><td class="num">'+grand.total+'</td></tr>';
+  html+='</tbody></table></div>';
+  wrap.innerHTML=html;
+}
+
+// ── INIT ───────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  APP.monthly={}; // the embedded value is raw DOB+60 data, not simulation-derived — clear until a forecast runs
+  document.getElementById('snoInput').addEventListener('keydown',e=>{if(e.key==='Enter')doPredict();});
+  document.getElementById('freshDataInput').addEventListener('change',handleFreshDataFile);
+  // Note: renderStats/renderCalendar/runRosterOutcomeSimulation/renderOutcomeCards
+  // are NOT called here — the dashboard stays behind #contentLoadingPlaceholder
+  // until loadFromGoogleDrive() resolves and calls refreshAllData(), which
+  // renders everything from live data (or the error path in loadFromGoogleDrive
+  // renders from whatever's already in APP as a fallback).
+});
+
+// ── SENIORITY LIST ────────────────────────────────
+let sActiveGrade=18;
+function toggleSeniorityPanel(){
+  const p=document.getElementById('seniorityPanel');
+  const open=p.classList.toggle('open');
+  setMenuItemActive('seniority',open);
+  if(open){renderSeniorityTable();p.scrollIntoView({block:'start',behavior:'smooth'});}
+}
+function switchSTab(g){
+  sActiveGrade=g;
+  GRADES.forEach(x=>{
+    document.getElementById('stab'+x).classList.toggle('active',x===g);
+  });
+  document.getElementById('senioritySearch').value='';
+  renderSeniorityTable();
+}
+function renderSeniorityTable(){
+  const q=(document.getElementById('senioritySearch').value||'').toLowerCase().trim();
+  const T0=simToday();
+  const twoYears=new Date(Date.UTC(T0.getUTCFullYear()+2,T0.getUTCMonth(),T0.getUTCDate()));
+  const list=APP.seniority[String(sActiveGrade)]||[];
+  // Get last forecast target for highlighting
+  const lastSno=parseInt(document.getElementById('snoInput').value)||0;
+  const lastGrade=parseInt(document.getElementById('gradeSelect').value)||0;
+  const filtered=list.filter(p=>{
+    if(!q)return true;
+    return p.name.toLowerCase().includes(q)||String(p.sno).includes(q)||(p.subject||'').toLowerCase().includes(q);
+  });
+  document.getElementById('seniorityCount').textContent=filtered.length+' / '+list.length+' shown';
+  let html='<table class="seniority-table"><thead><tr><th class="td-sno">S.No</th><th>Name</th><th>Subject</th><th class="td-retire">Retirement</th><th class="td-status">Status</th></tr></thead><tbody>';
+  filtered.forEach(p=>{
+    const rd=retireDate(p.dob);
+    const isRetired=rd<=T0;
+    const isNear=!isRetired&&rd<=twoYears;
+    const isTarget=(p.sno===lastSno&&sActiveGrade===lastGrade);
+    const rdStr=fmtDate(rd);
+    const status=isRetired?'<span style="font-size:11px;color:#991b1b;background:#fee2e2;border-radius:4px;padding:2px 6px;font-weight:600;">Retired</span>':isNear?'<span class="status-near">Retiring Soon</span>':'<span class="status-active">Active</span>';
+    html+=`<tr class="${isTarget?'highlight':''}"><td class="td-sno">${p.sno}</td><td>${esc(p.name)}</td><td>${esc(p.subject||'Unspecified')}</td><td class="td-retire">${rdStr}</td><td class="td-status">${status}</td></tr>`;
+  });
+  html+='</tbody></table>';
+  document.getElementById('seniorityTableWrap').innerHTML=html;
+  // Scroll to highlighted row if target
+  if(lastSno&&lastGrade===sActiveGrade){
+    const hw=document.querySelector('#seniorityTableWrap tr.highlight');
+    if(hw)hw.scrollIntoView({block:'center',behavior:'smooth'});
+  }
+}
+
+</script>
+<footer class="site-footer">
+  <p>Promotion Predictor Develop by <a href="https://www.facebook.com/touqeer.a.k" target="_blank" rel="noopener noreferrer">Touqeer Ahmed</a>.</p>
+</footer>
+
+</body>
+</html>
